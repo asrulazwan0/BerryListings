@@ -1,30 +1,23 @@
 // app.js
-const express = require('express');
+import express, { json } from 'express';
+import cors from 'cors';
+import { config } from 'dotenv';
+
+config()
+const PORT = process.env.PORT || 3000;
 const app = express();
 
-require('./swagger')(app);
+/** middlewares */
+app.use(json());
+app.use(cors());
+app.disable('x-powered-by'); 
 
-// Define routes and middleware here
+/** api routes */
 app.get('/', (req, res) => 
 {
     res.send('Welcome to the House Listings API!');
 });
 
-/**
- * @swagger
- * /api/houses:
- *   get:
- *     summary: Get a list of houses
- *     responses:
- *       200:
- *         description: Successful response
- */
-app.get('/api/houses', (req, res) => 
-{
-    res.json({ message: 'List of houses' });
-});
-
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => 
 {
     console.log(`Server is running on port ${PORT}`);
