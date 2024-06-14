@@ -19,7 +19,7 @@ app.get('/', (req, res) =>
 {
     res.send('Welcome to the House Listings API!');
 });
-app.use('/api/houses', housesRoutes);
+app.use('/api/v1/houses', housesRoutes);
 
 app.listen(PORT, () => 
 {
