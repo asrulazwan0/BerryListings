@@ -5,9 +5,9 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'House Listings API',
+      title: 'Property Listings API',
       version: '1.0.0',
-      description: 'API documentation for house listings',
+      description: 'API documentation for property listings',
     },
     servers: [
       {
