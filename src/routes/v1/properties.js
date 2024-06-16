@@ -29,14 +29,14 @@ const router = Router();
  *                default: property description
  *              price:
  *                type: string
- *                default: 100,000
+ *                default: 0
  *     responses:
  *      201:
  *        description: Created
+ *      400:
+ *        description: Bad Request
  *      409:
  *        description: Conflict
- *      404:
- *        description: Not Found
  *      500:
  *        description: Server Error
  */
@@ -140,7 +140,7 @@ router.route('/:id').put(propertyController.updateProperty);
  *        description: The unique Id of the property
  *        required: true
  *     responses:
- *      200:
+ *      204:
  *        description: Removed
  *      400:
  *        description: Bad request
