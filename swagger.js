@@ -20,7 +20,7 @@ function swaggerDocs(app, port)
         },
       ],
     },
-    apis: ['./routes/*.js'],
+    apis: ['./routes/v1/*.js'],
   };
   const specs = swaggerJsdoc(options);
 
