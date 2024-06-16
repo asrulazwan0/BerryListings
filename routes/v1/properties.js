@@ -1,4 +1,5 @@
 import { Router } from "express";
+import propertyController from '../../controllers/property-controller.js';
 const router = Router();
 
 /** POST Methods */
@@ -39,10 +40,7 @@ const router = Router();
  *      500:
  *        description: Server Error
  */
-router.route('/').post((req, res) => 
-{
-    res.json({ message: 'create new property' });
-});
+router.route('/').post(propertyController.createProperty);
 
 /** GET Methods */
 /**
@@ -67,11 +65,7 @@ router.route('/').post((req, res) =>
  *      500:
  *        description: Server Error
  */
-router.route('/:id').get((req, res) => 
-{
-    const propertyId = req.params.id;
-    res.json({ message: `get property id ${propertyId}` });
-});
+router.route('/:id').get(propertyController.getPropertyById);
 /**
  * @openapi
  * '/api/v1/properties':
@@ -89,10 +83,7 @@ router.route('/:id').get((req, res) =>
  *      500:
  *        description: Server Error
  */
-router.route('/').get((req, res) => 
-{
-    res.json({ message: 'get list of properties' });
-});
+router.route('/').get(propertyController.getPropertyList);
 
 /** PUT Methods */
 /**
@@ -120,6 +111,9 @@ router.route('/').get((req, res) =>
  *              description:
  *                type: string
  *                default: ''
+ *              price:
+ *                type: string
+ *                default: 0
  *     responses:
  *      200:
  *        description: Modified
@@ -130,11 +124,7 @@ router.route('/').get((req, res) =>
  *      500:
  *        description: Server Error
  */
-router.route('/:id').put((req, res) => 
-{
-    const propertyId = req.params.id;
-    res.json({ message: `update property id ${propertyId}` });
-});
+router.route('/:id').put(propertyController.updateProperty);
 
 /** DELETE Methods */
 /**
@@ -159,10 +149,6 @@ router.route('/:id').put((req, res) =>
  *      500:
  *        description: Server Error
  */
-router.route('/:id').delete((req, res) => 
-{
-    const propertyId = req.params.id;
-    res.json({ message: `delete property id ${propertyId}` });
-});
+router.route('/:id').delete(propertyController.deleteProperty);
 
 export default router
