@@ -1,36 +1,54 @@
-import generateUniqueId from '../unique-id.js';
+import { PrismaClient } from '@prisma/client'
+import generateUniqueId from '../utils/unique-id.js';
 
-const properties = [];
+const prisma = new PrismaClient();
 
 const propertyModel = {
-    createProperty: (propertyEntity) =>
+    createProperty: async ({ title, description, price }) =>
     {
-        propertyEntity.id = generateUniqueId();
-        properties.push(propertyEntity);
+        const property = await prisma.property.create({
+            data: {
+                uuid: generateUniqueId(),
+                title,
+                description,
+                price,
+            }
+        });
+          
+        return property;
+    },
+    getPropertyList: async () =>
+    {
+        const propertyList = await prisma.property.findMany();
 
-        return propertyEntity;
+        return propertyList;
     },
-    getPropertyList: () =>
+    getPropertyByUuid: async (uuid) =>
     {
-        return properties;
+        const property = await prisma.property.findUnique({
+            where: { uuid: uuid },
+        });
+
+        return property;
     },
-    getPropertyById: (propertyId) =>
+    updateProperty: async (property, { title, description, price }) =>
     {
-        return properties.find((prop) => prop.id === propertyId);
+        property.title = title;
+        property.description = description;
+        property.price = price;
+
+        const result = await prisma.property.update({
+            where: { uuid: property.uuid },
+            data: property,
+        })
+
+        return result;
     },
-    updateProperty: (property, newValue) =>
+    deleteProperty: async (uuid) =>
     {
-        property.title = newValue.title;
-        property.description = newValue.description;
-        property.price = newValue.price;
-    },
-    deleteProperty: (property) =>
-    {
-        const indexToRemove = properties.findIndex((prop) => prop.id === property.id);
-        if (indexToRemove !== -1) 
-        {
-            properties.splice(indexToRemove, 1);
-        }
+        await prisma.property.delete({
+            where: { uuid: uuid },
+        });
     },
 }
 
