@@ -4,7 +4,7 @@ const router = Router();
 /** POST Methods */
 /**
  * @openapi
- * '/api/properties':
+ * '/api/v1/properties':
  *  post:
  *     tags:
  *     - Property Controller
@@ -47,7 +47,7 @@ router.route('/').post((req, res) =>
 /** GET Methods */
 /**
  * @openapi
- * '/api/properties/{id}':
+ * '/api/v1/properties/{id}':
  *  get:
  *     tags:
  *     - Property Controller
@@ -74,7 +74,7 @@ router.route('/:id').get((req, res) =>
 });
 /**
  * @openapi
- * '/api/properties':
+ * '/api/v1/properties':
  *  get:
  *     tags:
  *     - Property Controller
@@ -97,7 +97,7 @@ router.route('/').get((req, res) =>
 /** PUT Methods */
 /**
  * @openapi
- * '/api/properties/{id}':
+ * '/api/v1/properties/{id}':
  *  put:
  *     tags:
  *     - Property Controller
@@ -139,7 +139,7 @@ router.route('/:id').put((req, res) =>
 /** DELETE Methods */
 /**
  * @openapi
- * '/api/properties/{id}':
+ * '/api/v1/properties/{id}':
  *  delete:
  *     tags:
  *     - Property Controller
