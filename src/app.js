@@ -3,7 +3,7 @@ import express, { json } from 'express';
 import cors from 'cors';
 import { config } from 'dotenv';
 import swaggerDocs from './swagger.js';
-import propertiesRoutes from './src/routes/v1/properties.js';
+import propertiesRoutes from './routes/v1/properties.js';
 
 config()
 const PORT = process.env.PORT || 3000;
