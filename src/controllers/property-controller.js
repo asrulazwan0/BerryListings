@@ -1,4 +1,4 @@
-import propertyModel from '../models/property-model.js';
+import propertyModel from '../utils/models/property-model.js';
 
 const propertyController = {
     createProperty: (req, res) =>
@@ -6,6 +6,9 @@ const propertyController = {
         try 
         {
             const { title, description, price } = req.body;
+        
+            // Validate the data (optional step)
+        
             const property = propertyModel.createProperty({ title, description, price });
         
             res.status(201).json({ message: 'Property created successfully', data: property });

@@ -1,4 +1,4 @@
-import generateUniqueId from '../utils/unique-id.js';
+import generateUniqueId from '../unique-id.js';
 
 const properties = [];
 
