@@ -3,7 +3,7 @@ import express, { json } from 'express';
 import cors from 'cors';
 import { config } from 'dotenv';
 import swaggerDocs from './swagger.js';
-import housesRoutes from './routes/houses.js';
+import propertiesRoutes from './routes/properties.js';
 
 config()
 const PORT = process.env.PORT || 3000;
@@ -19,7 +19,7 @@ app.get('/', (req, res) =>
 {
     res.send('Welcome to the House Listings API!');
 });
-app.use('/api/v1/houses', housesRoutes);
+app.use('/api/v1/properties', propertiesRoutes);
 
 app.listen(PORT, () => 
 {
