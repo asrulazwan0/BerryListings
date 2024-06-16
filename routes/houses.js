@@ -4,11 +4,11 @@ const router = Router();
 /** POST Methods */
 /**
  * @openapi
- * '/api/houses':
+ * '/api/properties':
  *  post:
  *     tags:
- *     - House Controller
- *     summary: Create a house
+ *     - Property Controller
+ *     summary: Create a property
  *     requestBody:
  *      required: true
  *      content:
@@ -22,10 +22,10 @@ const router = Router();
  *            properties:
  *              title:
  *                type: string
- *                default: house title 
+ *                default: property title 
  *              description:
  *                type: string
- *                default: house description
+ *                default: property description
  *              price:
  *                type: string
  *                default: 100,000
@@ -41,21 +41,21 @@ const router = Router();
  */
 router.route('/').post((req, res) => 
 {
-    res.json({ message: 'create new house' });
+    res.json({ message: 'create new property' });
 });
 
 /** GET Methods */
 /**
  * @openapi
- * '/api/houses/{id}':
+ * '/api/properties/{id}':
  *  get:
  *     tags:
- *     - House Controller
- *     summary: Get a house by id
+ *     - Property Controller
+ *     summary: Get a property by id
  *     parameters:
  *      - name: id
  *        in: path
- *        description: The id of the house
+ *        description: The id of the property
  *        required: true
  *     responses:
  *      200:
@@ -69,16 +69,16 @@ router.route('/').post((req, res) =>
  */
 router.route('/:id').get((req, res) => 
 {
-    const houseId = req.params.id;
-    res.json({ message: `get house id ${houseId}` });
+    const propertyId = req.params.id;
+    res.json({ message: `get property id ${propertyId}` });
 });
 /**
  * @openapi
- * '/api/houses':
+ * '/api/properties':
  *  get:
  *     tags:
- *     - House Controller
- *     summary: Get a list of house
+ *     - Property Controller
+ *     summary: Get a list of property
  *     responses:
  *      200:
  *        description: Fetched Successfully
@@ -91,21 +91,21 @@ router.route('/:id').get((req, res) =>
  */
 router.route('/').get((req, res) => 
 {
-    res.json({ message: 'get list of houses' });
+    res.json({ message: 'get list of properties' });
 });
 
 /** PUT Methods */
 /**
  * @openapi
- * '/api/houses/{id}':
+ * '/api/properties/{id}':
  *  put:
  *     tags:
- *     - House Controller
- *     summary: Modify a house by id
+ *     - Property Controller
+ *     summary: Modify a property by id
  *     parameters:
  *      - name: id
  *        in: path
- *        description: The unique Id of the house
+ *        description: The unique Id of the property
  *        required: true
  *     requestBody:
  *      required: true
@@ -132,22 +132,22 @@ router.route('/').get((req, res) =>
  */
 router.route('/:id').put((req, res) => 
 {
-    const houseId = req.params.id;
-    res.json({ message: `update house id ${houseId}` });
+    const propertyId = req.params.id;
+    res.json({ message: `update property id ${propertyId}` });
 });
 
 /** DELETE Methods */
 /**
  * @openapi
- * '/api/houses/{id}':
+ * '/api/properties/{id}':
  *  delete:
  *     tags:
- *     - House Controller
- *     summary: Delete house by Id
+ *     - Property Controller
+ *     summary: Delete property by Id
  *     parameters:
  *      - name: id
  *        in: path
- *        description: The unique Id of the house
+ *        description: The unique Id of the property
  *        required: true
  *     responses:
  *      200:
@@ -161,8 +161,8 @@ router.route('/:id').put((req, res) =>
  */
 router.route('/:id').delete((req, res) => 
 {
-    const houseId = req.params.id;
-    res.json({ message: `delete house id ${houseId}` });
+    const propertyId = req.params.id;
+    res.json({ message: `delete property id ${propertyId}` });
 });
 
 export default router
