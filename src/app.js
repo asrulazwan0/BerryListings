@@ -18,7 +18,7 @@ app.disable('x-powered-by');
 /** api routes */
 app.get('/', (req, res) => 
 {
-    res.send('Welcome to the House Listings API!');
+    res.send('Welcome to the Property Listings API!');
 });
 app.use('/api/v1/properties', propertiesRoutes);
 app.use('/api/v1/users', usersRoutes);
