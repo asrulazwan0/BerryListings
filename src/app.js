@@ -4,6 +4,7 @@ import cors from 'cors';
 import { config } from 'dotenv';
 import swaggerDocs from './swagger.js';
 import propertiesRoutes from './routes/v1/properties.js';
+import usersRoutes from './routes/v1/users.routes.js';
 
 config()
 const PORT = process.env.PORT || 3000;
@@ -20,6 +21,7 @@ app.get('/', (req, res) =>
     res.send('Welcome to the House Listings API!');
 });
 app.use('/api/v1/properties', propertiesRoutes);
+app.use('/api/v1/users', usersRoutes);
 
 app.listen(PORT, () => 
 {
