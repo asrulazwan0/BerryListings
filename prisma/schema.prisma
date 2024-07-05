@@ -5,25 +5,25 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-	provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-	provider = "mysql"
-	url      = env("DATABASE_URL")
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-	id          Int     @id @default(autoincrement())
-	uuid		String	@unique
-	email       String
-  	isEnabled	Boolean	@default(false)
+  id        Int     @id @default(autoincrement())
+  uuid      String  @unique
+  email     String
+  isEnabled Boolean @default(false)
 }
 
 model Property {
-	id          Int     @id @default(autoincrement())
-	uuid		String	@unique
-	title       String
-	description	String
-	price       Float
+  id          Int    @id @default(autoincrement())
+  uuid        String @unique
+  title       String
+  description String
+  price       Float
 }
