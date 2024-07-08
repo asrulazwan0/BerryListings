@@ -19,6 +19,20 @@ function swaggerDocs(app, port)
           url: url,
         },
       ],
+      components: {
+          securitySchemes: {
+              bearerAuth: {
+                  type: 'http',
+                  scheme: 'bearer',
+                  bearerFormat: 'JWT',
+              },
+          },
+      },
+      security: [
+          {
+              bearerAuth: [],
+          },
+      ],
     },
     apis: ['./src/routes/v1/*.js'],
   };
@@ -30,7 +44,7 @@ function swaggerDocs(app, port)
     res.send(specs)
   })
 
-  open(url + swaggerPath);
+  // open(url + swaggerPath);
 }
 
 export default swaggerDocs
