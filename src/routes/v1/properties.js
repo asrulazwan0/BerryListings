@@ -1,4 +1,5 @@
 import { Router } from "express";
+import authenticate from '../../middlewares/auth.middleware.js';
 import propertyController from '../../controllers/property-controller.js';
 const router = Router();
 
@@ -40,7 +41,7 @@ const router = Router();
  *      500:
  *        description: Server Error
  */
-router.route('/').post(propertyController.createProperty);
+router.route('/').post(authenticate, propertyController.createProperty);
 
 /** GET Methods */
 /**
@@ -124,7 +125,7 @@ router.route('/').get(propertyController.getPropertyList);
  *      500:
  *        description: Server Error
  */
-router.route('/:id').put(propertyController.updateProperty);
+router.route('/:id').put(authenticate, propertyController.updateProperty);
 
 /** DELETE Methods */
 /**
@@ -149,6 +150,6 @@ router.route('/:id').put(propertyController.updateProperty);
  *      500:
  *        description: Server Error
  */
-router.route('/:id').delete(propertyController.deleteProperty);
+router.route('/:id').delete(authenticate, propertyController.deleteProperty);
 
 export default router
