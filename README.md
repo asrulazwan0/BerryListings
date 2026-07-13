@@ -78,7 +78,7 @@ Interactive Swagger UI is served at `/docs` once the server is running (e.g. `ht
 
 ## Authentication
 
-Protected routes expect a `Bearer` JWT, signed with `JWT_SECRET`, in the `Authorization` header. There is currently **no login endpoint** to issue tokens through the API itself — tokens must be generated manually (see `src/utils/jwt-utils.js`). Adding a proper login flow (Google OAuth) is tracked in the roadmap below.
+Protected routes expect a `Bearer` JWT, signed with `JWT_SECRET`, in the `Authorization` header. There is currently **no login endpoint** to issue tokens through the API itself — tokens must be generated manually (see `src/utils/jwt-utils.js`). Adding a proper login flow (Google OAuth) is tracked as an issue in the Jira project linked below.
 
 ## Project Tracking
 
