@@ -118,6 +118,8 @@ router.route('/').get(usersController.getUserList);
  *        description: Bad Request
  *      404:
  *        description: Not Found
+ *      409:
+ *        description: Conflict
  *      500:
  *        description: Server Error
  */
