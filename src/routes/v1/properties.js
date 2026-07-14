@@ -62,13 +62,14 @@ const validateUpdateProperty = propertyFieldValidators();
  *            properties:
  *              title:
  *                type: string
- *                default: property title
+ *                example: Modern family home
  *              description:
  *                type: string
- *                default: property description
+ *                example: Spacious home close to the city centre
  *              price:
- *                type: string
- *                default: 0
+ *                type: number
+ *                format: float
+ *                example: 650000
  *              type:
  *                type: string
  *                enum: [HOUSE, CONDO, TOWNHOME, LAND]
@@ -79,29 +80,42 @@ const validateUpdateProperty = propertyFieldValidators();
  *                default: DRAFT
  *              addressLine:
  *                type: string
- *                default: 214 Maple Ridge Rd
+ *                example: 214 Maple Ridge Rd
  *              city:
  *                type: string
- *                default: Ashbourne
+ *                example: Ashbourne
  *              bedrooms:
  *                type: integer
- *                default: 0
+ *                minimum: 0
+ *                example: 4
  *              bathrooms:
  *                type: number
- *                default: 0
+ *                format: float
+ *                minimum: 0
+ *                example: 2.5
  *              sqft:
  *                type: integer
- *                default: 0
+ *                minimum: 0
+ *                example: 2200
  *              lotSizeAcres:
  *                type: number
+ *                format: float
+ *                minimum: 0
  *                nullable: true
  *              yearBuilt:
  *                type: integer
+ *                minimum: 1800
  *                nullable: true
  *              amenities:
  *                type: array
  *                items:
  *                  type: string
+ *              photos:
+ *                type: array
+ *                maxItems: 20
+ *                items:
+ *                  type: string
+ *                  format: uri
  *     responses:
  *      201:
  *        description: Created
@@ -182,16 +196,73 @@ router.route('/').get(propertyController.getPropertyList);
  *        application/json:
  *           schema:
  *            type: object
+ *            required:
+ *              - title
+ *              - description
+ *              - price
+ *              - addressLine
+ *              - city
+ *              - bedrooms
+ *              - bathrooms
+ *              - sqft
  *            properties:
  *              title:
  *                type: string
- *                default: ''
+ *                example: Modern family home
  *              description:
  *                type: string
- *                default: ''
+ *                example: Spacious home close to the city centre
  *              price:
+ *                type: number
+ *                format: float
+ *                example: 650000
+ *              type:
  *                type: string
- *                default: 0
+ *                enum: [HOUSE, CONDO, TOWNHOME, LAND]
+ *                default: HOUSE
+ *              status:
+ *                type: string
+ *                enum: [DRAFT, ACTIVE, PENDING, SOLD]
+ *                default: DRAFT
+ *              addressLine:
+ *                type: string
+ *                example: 214 Maple Ridge Rd
+ *              city:
+ *                type: string
+ *                example: Ashbourne
+ *              bedrooms:
+ *                type: integer
+ *                minimum: 0
+ *                example: 4
+ *              bathrooms:
+ *                type: number
+ *                format: float
+ *                minimum: 0
+ *                example: 2.5
+ *              sqft:
+ *                type: integer
+ *                minimum: 0
+ *                example: 2200
+ *              lotSizeAcres:
+ *                type: number
+ *                format: float
+ *                minimum: 0
+ *                nullable: true
+ *              yearBuilt:
+ *                type: integer
+ *                minimum: 1800
+ *                nullable: true
+ *              amenities:
+ *                type: array
+ *                maxItems: 50
+ *                items:
+ *                  type: string
+ *              photos:
+ *                type: array
+ *                maxItems: 20
+ *                items:
+ *                  type: string
+ *                  format: uri
  *     responses:
  *      200:
  *        description: Modified

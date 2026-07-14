@@ -1,35 +1,41 @@
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 
-function swaggerDocs(app, port) {
+const createDefinition = (port) => {
     const url = `http://localhost:${port}`;
-    const swaggerPath = '/docs';
-    const options = {
-        definition: {
-            openapi: '3.0.0',
-            info: {
-                title: 'Property Listings API',
-                version: '1.0.0',
-                description: 'API documentation for property listings',
+    return {
+        openapi: '3.0.0',
+        info: {
+            title: 'Property Listings API',
+            version: '1.0.0',
+            description: 'API documentation for property listings',
+        },
+        servers: [
+            {
+                url: url,
             },
-            servers: [
-                {
-                    url: url,
-                },
-            ],
-            components: {
-                securitySchemes: {
-                    bearerAuth: {
-                        type: 'http',
-                        scheme: 'bearer',
-                        bearerFormat: 'JWT',
-                    },
+        ],
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: 'http',
+                    scheme: 'bearer',
+                    bearerFormat: 'JWT',
                 },
             },
         },
-        apis: ['./src/routes/v1/*.js'],
     };
-    const specs = swaggerJsdoc(options);
+};
+
+export const createSwaggerSpec = (port) =>
+    swaggerJsdoc({
+        definition: createDefinition(port),
+        apis: ['./src/routes/v1/*.js'],
+    });
+
+function swaggerDocs(app, port) {
+    const swaggerPath = '/docs';
+    const specs = createSwaggerSpec(port);
 
     app.use(swaggerPath, swaggerUi.serve, swaggerUi.setup(specs));
     app.get('/docs.json', (req, res) => {
