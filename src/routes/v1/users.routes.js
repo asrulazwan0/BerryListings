@@ -1,6 +1,11 @@
 import { Router } from "express";
+import { check } from 'express-validator';
 import usersController from '../../controllers/users.controller.js';
 const router = Router();
+
+const validateCreateUser = [
+    check('email').trim().isEmail(),
+  ];
 
 /** POST Methods */
 /**
@@ -32,7 +37,7 @@ const router = Router();
  *      500:
  *        description: Server Error
  */
-router.route('/').post(usersController.createUser);
+router.route('/').post(validateCreateUser, usersController.createUser);
 
 /** GET Methods */
 /**
