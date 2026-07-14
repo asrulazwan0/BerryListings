@@ -6,7 +6,7 @@ A REST API for managing real estate property listings, built for a real estate a
 
 - **Runtime:** Node.js (ESM), Express
 - **Database:** MySQL via Prisma ORM
-- **Auth:** JWT (`jsonwebtoken`), bearer tokens
+- **Auth:** Google OAuth login (`google-auth-library`) issuing JWTs (`jsonwebtoken`), bearer tokens
 - **Docs:** Swagger / OpenAPI (`swagger-jsdoc` + `swagger-ui-express`)
 - **Validation:** `express-validator`
 - **Deployment:** Docker (see `Dockerfile`)
@@ -38,7 +38,10 @@ DB_NAME=
 ADMIN_USER=
 ADMIN_PASS=
 JWT_SECRET=
+GOOGLE_CLIENT_ID=
 ```
+
+`GOOGLE_CLIENT_ID` is the OAuth 2.0 Client ID from a Google Cloud project (APIs & Services > Credentials). It's used to verify Google ID tokens on login.
 
 Run migrations and start the server:
 
@@ -73,6 +76,7 @@ Interactive Swagger UI is served at `/docs` once the server is running (e.g. `ht
 
 | Method | Path                     | Auth required | Description            |
 |--------|--------------------------|----------------|-------------------------|
+| POST   | `/api/v1/auth/google`    | No             | Log in with a Google ID token, returns a bearer JWT |
 | POST   | `/api/v1/properties`     | Yes            | Create a property       |
 | GET    | `/api/v1/properties`     | No             | List properties         |
 | GET    | `/api/v1/properties/:id`| No             | Get a property by id    |
@@ -86,7 +90,17 @@ Interactive Swagger UI is served at `/docs` once the server is running (e.g. `ht
 
 ## Authentication
 
-Protected routes expect a `Bearer` JWT, signed with `JWT_SECRET`, in the `Authorization` header. There is currently **no login endpoint** to issue tokens through the API itself — tokens must be generated manually (see `src/utils/jwt-utils.js`). Adding a proper login flow (Google OAuth) is tracked as an issue in the Jira project linked below.
+Protected routes expect a `Bearer` JWT, signed with `JWT_SECRET`, in the `Authorization` header.
+
+Log in via `POST /api/v1/auth/google` with a Google ID token (obtained client-side via Google Sign-In, using the same `GOOGLE_CLIENT_ID`):
+
+```json
+{ "idToken": "<Google ID token>" }
+```
+
+The server verifies the token with Google, looks up the token's email against the `User` table, and issues a bearer JWT only if a matching row exists with `isEnabled: true` -- i.e. only emails an admin has already added can log in. Unregistered or disabled emails get a `403`; an invalid/unverifiable token gets a `401`.
+
+Tokens can also still be generated manually for local development/testing (see `src/utils/jwt-utils.js`).
 
 All `/api/v1/users` routes additionally require the caller to be an **enabled admin**: on every request, the JWT's `email` claim is looked up against the `User` table, and the request is rejected with `403` unless a matching row has `role: ADMIN` and `isEnabled: true`. Seed the first admin from the `ADMIN_USER` env var:
 
