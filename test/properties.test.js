@@ -38,6 +38,8 @@ describe('properties API', () => {
     let otherUser;
     let adminUser;
     let disabledUser;
+    let deleteTargetUuid;
+    let deleteTargetId;
     const createdUuids = [];
 
     beforeAll(async () => {
@@ -247,6 +249,38 @@ describe('properties API', () => {
             .send(validPropertyPayload({ title: 'x', description: 'y', price: '1' }));
 
         expect(res.status).toBe(401);
+    });
+
+    it('rejects deletion from a non-owner', async () => {
+        const createRes = await request(app)
+            .post('/api/v1/properties')
+            .set('Authorization', `Bearer ${token}`)
+            .send(validPropertyPayload({ title: 'Delete authorization target' }));
+        deleteTargetUuid = createRes.body.data.uuid;
+        createdUuids.push(deleteTargetUuid);
+
+        const property = await prisma.property.findUnique({
+            where: { uuid: deleteTargetUuid },
+            select: { id: true },
+        });
+        deleteTargetId = property.id;
+        expect(await prisma.propertyPhoto.count({ where: { propertyId: deleteTargetId } })).toBe(2);
+
+        const res = await request(app)
+            .delete(`/api/v1/properties/${deleteTargetUuid}`)
+            .set('Authorization', `Bearer ${otherToken}`);
+
+        expect(res.status).toBe(403);
+    });
+
+    it('allows an administrator to delete and cascades property photos', async () => {
+        const res = await request(app)
+            .delete(`/api/v1/properties/${deleteTargetUuid}`)
+            .set('Authorization', `Bearer ${adminToken}`);
+
+        expect(res.status).toBe(204);
+        expect(await prisma.propertyPhoto.count({ where: { propertyId: deleteTargetId } })).toBe(0);
+        createdUuids.splice(createdUuids.indexOf(deleteTargetUuid), 1);
     });
 
     it('deletes a property', async () => {

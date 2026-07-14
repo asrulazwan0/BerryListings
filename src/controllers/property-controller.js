@@ -80,9 +80,13 @@ const propertyController = {
         const { id } = req.params;
 
         try {
-            const result = await propertyService.deleteProperty(id);
+            const result = await propertyService.deleteProperty(id, req.user.id);
 
-            if (!result) {
+            if (result.error === 'forbidden') {
+                return res.status(403).json({ error: 'Forbidden' });
+            }
+
+            if (result.error === 'not_found') {
                 return res.status(404).json({ message: 'Property not found' });
             }
 

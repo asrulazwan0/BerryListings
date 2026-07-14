@@ -96,16 +96,26 @@ const propertyService = {
 
         return { data };
     },
-    deleteProperty: async (uuid) => {
-        const property = await propertyModel.getPropertyByUuid(uuid);
+    deleteProperty: async (uuid, actorId) => {
+        const actor = await getEnabledActor(actorId);
+
+        if (!actor) {
+            return { error: 'forbidden' };
+        }
+
+        const property = await propertyModel.getPropertyOwnership(uuid);
 
         if (!property) {
-            return null;
+            return { error: 'not_found' };
+        }
+
+        if (!canMutate(actor, property)) {
+            return { error: 'forbidden' };
         }
 
         await propertyModel.deleteProperty(property.uuid);
 
-        return true;
+        return { data: true };
     },
 };
 
