@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router } from 'express';
 import { check } from 'express-validator';
 import authenticate from '../../middlewares/auth.middleware.js';
 import propertyController from '../../controllers/property-controller.js';
@@ -33,7 +33,7 @@ const validateCreateProperty = [
  *            properties:
  *              title:
  *                type: string
- *                default: property title 
+ *                default: property title
  *              description:
  *                type: string
  *                default: property description
@@ -177,4 +177,4 @@ router.route('/:id').put(authenticate, propertyController.updateProperty);
  */
 router.route('/:id').delete(authenticate, propertyController.deleteProperty);
 
-export default router
+export default router;

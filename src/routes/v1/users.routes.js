@@ -1,11 +1,9 @@
-import { Router } from "express";
+import { Router } from 'express';
 import { check } from 'express-validator';
 import usersController from '../../controllers/users.controller.js';
 const router = Router();
 
-const validateCreateUser = [
-    check('email').trim().isEmail(),
-  ];
+const validateCreateUser = [check('email').trim().isEmail()];
 
 /** POST Methods */
 /**
@@ -180,4 +178,4 @@ router.route('/:id').put(usersController.updateUser);
  */
 router.route('/:id').delete(usersController.deleteUser);
 
-export default router
+export default router;

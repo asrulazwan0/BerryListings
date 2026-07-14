@@ -1,7 +1,6 @@
 import { v4 } from 'uuid';
 
-const generateUniqueId = () => 
-{
+const generateUniqueId = () => {
     return v4();
 };
 
