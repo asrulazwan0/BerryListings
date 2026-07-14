@@ -14,11 +14,17 @@ const createUser = async (req, res) =>
 
         const { email } = req.body;
         const result = await userModel.createUser(email);
-    
+
         res.status(201).json({ message: 'User created successfully', data: result });
-    } 
-    catch (error) 
+    }
+    catch (error)
     {
+        if (error.code === 'P2002')
+        {
+            return res.status(409).json({ error: 'A user with this email already exists' });
+        }
+
+        console.error(error.stack);
         res.status(500).json({ error: 'Error creating user' });
     }
 };
@@ -79,6 +85,11 @@ const updateUser = async (req, res) =>
     }
     catch (error)
     {
+        if (error.code === 'P2002')
+        {
+            return res.status(409).json({ error: 'A user with this email already exists' });
+        }
+
         console.error(error.stack);
         res.status(500).json({ error: `Error updating user id ${id}` });
     }
