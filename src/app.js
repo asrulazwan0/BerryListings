@@ -14,17 +14,23 @@ const app = express();
 /** middlewares */
 app.use(json());
 app.use(cors());
-app.disable('x-powered-by'); 
+app.disable('x-powered-by');
 
 /** api routes */
-app.get('/', (req, res) => 
+app.get('/', (req, res) =>
 {
     res.send('Welcome to the Property Listings API!');
 });
 app.use('/api/v1/properties', propertiesRoutes);
 app.use('/api/v1/users', authenticate, usersRoutes);
 
-app.listen(PORT, () => 
+app.use((err, req, res, next) =>
+{
+    console.error(err.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
+});
+
+app.listen(PORT, () =>
 {
     console.log(`Server is running on port ${PORT}`);
 });

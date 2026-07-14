@@ -7,13 +7,13 @@ const propertyController = {
         {
             const { title, description, price } = req.body;
             const numericPrice = parseFloat(price);
-        
             const result = await propertyModel.createProperty({ title, description, price: numericPrice });
         
             res.status(201).json({ message: 'Property created successfully', data: result });
         } 
         catch (error) 
         {
+            console.error(error.stack);
             res.status(500).json({ error: 'Error creating property' });
         }
     },
