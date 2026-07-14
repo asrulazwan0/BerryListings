@@ -47,6 +47,8 @@ const getEnabledActor = async (actorId) => {
 
 const toPhotos = (photos) => photos?.map((url, position) => ({ url: url.trim(), position }));
 
+const canMutate = (actor, property) => actor.role === 'ADMIN' || actor.id === property.agentId;
+
 const propertyService = {
     createProperty: async (payload, actorId) => {
         const actor = await getEnabledActor(actorId);
@@ -69,14 +71,30 @@ const propertyService = {
     getPropertyByUuid: async (uuid) => {
         return propertyModel.getPropertyByUuid(uuid);
     },
-    updateProperty: async (uuid, payload) => {
-        const property = await propertyModel.getPropertyByUuid(uuid);
+    updateProperty: async (uuid, payload, actorId) => {
+        const actor = await getEnabledActor(actorId);
 
-        if (!property) {
-            return null;
+        if (!actor) {
+            return { error: 'forbidden' };
         }
 
-        return propertyModel.updateProperty(property, toPropertyData(payload));
+        const property = await propertyModel.getPropertyOwnership(uuid);
+
+        if (!property) {
+            return { error: 'not_found' };
+        }
+
+        if (!canMutate(actor, property)) {
+            return { error: 'forbidden' };
+        }
+
+        const data = await propertyModel.updateProperty(
+            property.uuid,
+            toPropertyData(payload),
+            toPhotos(payload.photos),
+        );
+
+        return { data };
     },
     deleteProperty: async (uuid) => {
         const property = await propertyModel.getPropertyByUuid(uuid);

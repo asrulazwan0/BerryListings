@@ -32,22 +32,58 @@ const validPropertyPayload = (overrides = {}) => ({
 describe('properties API', () => {
     let token;
     let owner;
+    let otherToken;
+    let adminToken;
+    let disabledToken;
+    let otherUser;
+    let adminUser;
+    let disabledUser;
     const createdUuids = [];
 
     beforeAll(async () => {
+        const unique = Date.now();
         owner = await prisma.user.create({
             data: {
                 uuid: generateUniqueId(),
-                email: `vitest-property-owner-${Date.now()}@example.com`,
+                email: `vitest-property-owner-${unique}@example.com`,
                 isEnabled: true,
             },
         });
+        otherUser = await prisma.user.create({
+            data: {
+                uuid: generateUniqueId(),
+                email: `vitest-property-other-${unique}@example.com`,
+                isEnabled: true,
+            },
+        });
+        adminUser = await prisma.user.create({
+            data: {
+                uuid: generateUniqueId(),
+                email: `vitest-property-admin-${unique}@example.com`,
+                isEnabled: true,
+                role: 'ADMIN',
+            },
+        });
+        disabledUser = await prisma.user.create({
+            data: {
+                uuid: generateUniqueId(),
+                email: `vitest-property-disabled-${unique}@example.com`,
+                isEnabled: false,
+            },
+        });
         token = generateAccessToken({ id: owner.id, email: owner.email });
+        otherToken = generateAccessToken({ id: otherUser.id, email: otherUser.email });
+        adminToken = generateAccessToken({ id: adminUser.id, email: adminUser.email });
+        disabledToken = generateAccessToken({ id: disabledUser.id, email: disabledUser.email });
     });
 
     afterAll(async () => {
-        await prisma.property.deleteMany({ where: { agentId: owner.id } });
-        await prisma.user.delete({ where: { id: owner.id } });
+        await prisma.property.deleteMany({
+            where: { agentId: { in: [owner.id, otherUser.id, adminUser.id, disabledUser.id] } },
+        });
+        await prisma.user.deleteMany({
+            where: { id: { in: [owner.id, otherUser.id, adminUser.id, disabledUser.id] } },
+        });
         await prisma.$disconnect();
     });
 
@@ -142,6 +178,67 @@ describe('properties API', () => {
 
         expect(res.status).toBe(200);
         expect(res.body.data.title).toBe('Updated Villa');
+    });
+
+    it('rejects an update from a non-owner', async () => {
+        const res = await request(app)
+            .put(`/api/v1/properties/${createdUuids[0]}`)
+            .set('Authorization', `Bearer ${otherToken}`)
+            .send(validPropertyPayload({ title: 'Unauthorized update' }));
+
+        expect(res.status).toBe(403);
+    });
+
+    it('rejects an update from a disabled user', async () => {
+        const res = await request(app)
+            .put(`/api/v1/properties/${createdUuids[0]}`)
+            .set('Authorization', `Bearer ${disabledToken}`)
+            .send(validPropertyPayload({ title: 'Disabled update' }));
+
+        expect(res.status).toBe(403);
+    });
+
+    it("allows an administrator to update another user's property", async () => {
+        const res = await request(app)
+            .put(`/api/v1/properties/${createdUuids[0]}`)
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send(validPropertyPayload({ title: 'Admin updated' }));
+
+        expect(res.status).toBe(200);
+        expect(res.body.data.title).toBe('Admin updated');
+    });
+
+    it('replaces photos when they are supplied on update', async () => {
+        const res = await request(app)
+            .put(`/api/v1/properties/${createdUuids[0]}`)
+            .set('Authorization', `Bearer ${token}`)
+            .send(
+                validPropertyPayload({
+                    title: 'Photo replacement',
+                    photos: ['https://images.example.com/replacement.jpg'],
+                }),
+            );
+
+        expect(res.status).toBe(200);
+        expect(res.body.data.photos).toEqual([
+            { url: 'https://images.example.com/replacement.jpg', position: 0 },
+        ]);
+    });
+
+    it('preserves photos when they are omitted on update', async () => {
+        const payloadWithoutPhotos = validPropertyPayload({
+            title: 'Photos preserved',
+        });
+        delete payloadWithoutPhotos.photos;
+        const res = await request(app)
+            .put(`/api/v1/properties/${createdUuids[0]}`)
+            .set('Authorization', `Bearer ${token}`)
+            .send(payloadWithoutPhotos);
+
+        expect(res.status).toBe(200);
+        expect(res.body.data.photos).toEqual([
+            { url: 'https://images.example.com/replacement.jpg', position: 0 },
+        ]);
     });
 
     it('rejects update without a token', async () => {

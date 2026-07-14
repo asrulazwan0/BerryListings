@@ -57,13 +57,20 @@ const propertyController = {
                 return res.status(400).json({ errors: errors.array() });
             }
 
-            const result = await propertyService.updateProperty(id, req.body);
+            const result = await propertyService.updateProperty(id, req.body, req.user.id);
 
-            if (!result) {
+            if (result.error === 'forbidden') {
+                return res.status(403).json({ error: 'Forbidden' });
+            }
+
+            if (result.error === 'not_found') {
                 return res.status(404).json({ message: 'Property not found' });
             }
 
-            res.json({ message: `Property with id ${id} updated successfully`, data: result });
+            res.json({
+                message: `Property with id ${id} updated successfully`,
+                data: result.data,
+            });
         } catch (error) {
             console.error(error.stack);
             res.status(500).json({ error: `Error updating property id ${id}` });
