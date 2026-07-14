@@ -28,11 +28,6 @@ function swaggerDocs(app, port)
               },
           },
       },
-      security: [
-          {
-              bearerAuth: [],
-          },
-      ],
     },
     apis: ['./src/routes/v1/*.js'],
   };

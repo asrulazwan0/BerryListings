@@ -15,6 +15,8 @@ const validateCreateUser = [
  *     tags:
  *     - User Controller
  *     summary: Create a user
+ *     security:
+ *      - bearerAuth: []
  *     requestBody:
  *      required: true
  *      content:
@@ -32,6 +34,10 @@ const validateCreateUser = [
  *        description: Created
  *      400:
  *        description: Bad Request
+ *      401:
+ *        description: Unauthorized
+ *      403:
+ *        description: Forbidden
  *      409:
  *        description: Conflict
  *      500:
@@ -47,6 +53,8 @@ router.route('/').post(validateCreateUser, usersController.createUser);
  *     tags:
  *     - User Controller
  *     summary: Get a user by id
+ *     security:
+ *      - bearerAuth: []
  *     parameters:
  *      - name: id
  *        in: path
@@ -57,6 +65,10 @@ router.route('/').post(validateCreateUser, usersController.createUser);
  *        description: Fetched Successfully
  *      400:
  *        description: Bad Request
+ *      401:
+ *        description: Unauthorized
+ *      403:
+ *        description: Forbidden
  *      404:
  *        description: Not Found
  *      500:
@@ -70,11 +82,17 @@ router.route('/:id').get(usersController.getUserById);
  *     tags:
  *     - User Controller
  *     summary: Get a list of user
+ *     security:
+ *      - bearerAuth: []
  *     responses:
  *      200:
  *        description: Fetched Successfully
  *      400:
  *        description: Bad Request
+ *      401:
+ *        description: Unauthorized
+ *      403:
+ *        description: Forbidden
  *      404:
  *        description: Not Found
  *      500:
@@ -90,6 +108,8 @@ router.route('/').get(usersController.getUserList);
  *     tags:
  *     - User Controller
  *     summary: Modify a user by id
+ *     security:
+ *      - bearerAuth: []
  *     parameters:
  *      - name: id
  *        in: path
@@ -116,6 +136,10 @@ router.route('/').get(usersController.getUserList);
  *        description: Modified
  *      400:
  *        description: Bad Request
+ *      401:
+ *        description: Unauthorized
+ *      403:
+ *        description: Forbidden
  *      404:
  *        description: Not Found
  *      409:
@@ -133,6 +157,8 @@ router.route('/:id').put(usersController.updateUser);
  *     tags:
  *     - User Controller
  *     summary: Delete user by Id
+ *     security:
+ *      - bearerAuth: []
  *     parameters:
  *      - name: id
  *        in: path
@@ -143,6 +169,10 @@ router.route('/:id').put(usersController.updateUser);
  *        description: Removed
  *      400:
  *        description: Bad request
+ *      401:
+ *        description: Unauthorized
+ *      403:
+ *        description: Forbidden
  *      404:
  *        description: Not Found
  *      500:
