@@ -1,7 +1,14 @@
 import { Router } from "express";
+import { check } from 'express-validator';
 import authenticate from '../../middlewares/auth.middleware.js';
 import propertyController from '../../controllers/property-controller.js';
 const router = Router();
+
+const validateCreateProperty = [
+    check('title').trim().notEmpty(),
+    check('description').trim().notEmpty(),
+    check('price').isFloat({ gt: 0 }),
+];
 
 /** POST Methods */
 /**
@@ -41,7 +48,7 @@ const router = Router();
  *      500:
  *        description: Server Error
  */
-router.route('/').post(authenticate, propertyController.createProperty);
+router.route('/').post(authenticate, validateCreateProperty, propertyController.createProperty);
 
 /** GET Methods */
 /**
