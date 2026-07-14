@@ -1,5 +1,5 @@
 import { validationResult } from 'express-validator';
-import propertyModel from '../models/property-model.js';
+import propertyService from '../services/property-service.js';
 
 const propertyController = {
     createProperty: async (req, res) =>
@@ -14,12 +14,11 @@ const propertyController = {
             }
 
             const { title, description, price } = req.body;
-            const numericPrice = parseFloat(price);
-            const result = await propertyModel.createProperty({ title, description, price: numericPrice });
-        
+            const result = await propertyService.createProperty({ title, description, price });
+
             res.status(201).json({ message: 'Property created successfully', data: result });
-        } 
-        catch (error) 
+        }
+        catch (error)
         {
             console.error(error.stack);
             res.status(500).json({ error: 'Error creating property' });
@@ -29,7 +28,7 @@ const propertyController = {
     {
         try
         {
-            const propertyList = await propertyModel.getPropertyList();
+            const propertyList = await propertyService.getPropertyList();
             res.json({ message: 'get property list', data: propertyList });
         }
         catch (error)
@@ -44,7 +43,7 @@ const propertyController = {
 
         try
         {
-            const property = await propertyModel.getPropertyByUuid(id);
+            const property = await propertyService.getPropertyByUuid(id);
 
             if (!property)
             {
@@ -59,49 +58,46 @@ const propertyController = {
             res.status(500).json({ error: `Error fetching property id ${id}` });
         }
     },
-    updateProperty: async (req, res) => 
+    updateProperty: async (req, res) =>
     {
         const { id } = req.params;
 
-        try 
+        try
         {
             const { title, description, price } = req.body;
-            const numericPrice = parseFloat(price);
-            const property = await propertyModel.getPropertyByUuid(id);
-        
-            if (!property) 
+            const result = await propertyService.updateProperty(id, { title, description, price });
+
+            if (!result)
             {
                 return res.status(404).json({ message: 'Property not found' });
             }
-
-            const result = await propertyModel.updateProperty(property, { title, description, price: numericPrice });
 
             res.json({ message: `Property with id ${id} updated successfully`, data: result });
         }
-        catch (error) 
+        catch (error)
         {
-            console.log(error)
+            console.error(error.stack);
             res.status(500).json({ error: `Error updating property id ${id}` });
         }
     },
-    deleteProperty: async (req, res) => 
+    deleteProperty: async (req, res) =>
     {
         const { id } = req.params;
 
-        try 
+        try
         {
-            const property = await propertyModel.getPropertyByUuid(id);
-        
-            if (!property) 
+            const result = await propertyService.deleteProperty(id);
+
+            if (!result)
             {
                 return res.status(404).json({ message: 'Property not found' });
             }
 
-            await propertyModel.deleteProperty(property.uuid);
-
-            res.status(204).send();} 
-        catch (error) 
+            res.status(204).send();
+        }
+        catch (error)
         {
+            console.error(error.stack);
             res.status(500).json({ error: `Error deleting property id ${id}` });
         }
     },
