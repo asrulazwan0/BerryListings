@@ -1,14 +1,42 @@
 import { Router } from 'express';
-import { check } from 'express-validator';
+import { body } from 'express-validator';
 import authenticate from '../../middlewares/auth.middleware.js';
 import propertyController from '../../controllers/property-controller.js';
 const router = Router();
 
-const validateCreateProperty = [
-    check('title').trim().notEmpty(),
-    check('description').trim().notEmpty(),
-    check('price').isFloat({ gt: 0 }),
+const PROPERTY_TYPES = ['HOUSE', 'CONDO', 'TOWNHOME', 'LAND'];
+const PROPERTY_STATUSES = ['DRAFT', 'ACTIVE', 'PENDING', 'SOLD'];
+
+const propertyFieldValidators = () => [
+    body('title').isString().trim().notEmpty(),
+    body('description').isString().trim().notEmpty(),
+    body('price').isFloat({ gt: 0 }),
+    body('type').optional().isIn(PROPERTY_TYPES),
+    body('status').optional().isIn(PROPERTY_STATUSES),
+    body('addressLine').isString().trim().notEmpty(),
+    body('city').isString().trim().notEmpty(),
+    body('bedrooms').isInt({ min: 0 }),
+    body('bathrooms').isFloat({ min: 0 }),
+    body('sqft').isInt({ min: 0 }),
+    body('lotSizeAcres')
+        .optional({ values: 'null' })
+        .if((value) => value !== '')
+        .isFloat({ min: 0 }),
+    body('yearBuilt')
+        .optional({ values: 'null' })
+        .if((value) => value !== '')
+        .isInt({ min: 1800, max: new Date().getFullYear() + 1 }),
+    body('amenities').optional().isArray({ max: 50 }),
+    body('amenities.*').optional().isString().trim().notEmpty(),
+    body('photos').optional().isArray({ max: 20 }),
+    body('photos.*')
+        .optional()
+        .isURL({ protocols: ['http', 'https'], require_protocol: true }),
+    body('agentId').not().exists().withMessage('agentId is derived from authentication'),
 ];
+
+const validateCreateProperty = propertyFieldValidators();
+const validateUpdateProperty = propertyFieldValidators();
 
 /** POST Methods */
 /**
@@ -30,16 +58,69 @@ const validateCreateProperty = [
  *              - title
  *              - description
  *              - price
+ *              - addressLine
+ *              - city
+ *              - bedrooms
+ *              - bathrooms
+ *              - sqft
  *            properties:
  *              title:
  *                type: string
- *                default: property title
+ *                example: Modern family home
  *              description:
  *                type: string
- *                default: property description
+ *                example: Spacious home close to the city centre
  *              price:
+ *                type: number
+ *                format: float
+ *                example: 650000
+ *              type:
  *                type: string
- *                default: 0
+ *                enum: [HOUSE, CONDO, TOWNHOME, LAND]
+ *                default: HOUSE
+ *              status:
+ *                type: string
+ *                enum: [DRAFT, ACTIVE, PENDING, SOLD]
+ *                default: DRAFT
+ *              addressLine:
+ *                type: string
+ *                example: 214 Maple Ridge Rd
+ *              city:
+ *                type: string
+ *                example: Ashbourne
+ *              bedrooms:
+ *                type: integer
+ *                minimum: 0
+ *                example: 4
+ *              bathrooms:
+ *                type: number
+ *                format: float
+ *                minimum: 0
+ *                example: 2.5
+ *              sqft:
+ *                type: integer
+ *                minimum: 0
+ *                example: 2200
+ *              lotSizeAcres:
+ *                type: number
+ *                format: float
+ *                minimum: 0
+ *                nullable: true
+ *              yearBuilt:
+ *                type: integer
+ *                minimum: 1800
+ *                nullable: true
+ *              amenities:
+ *                type: array
+ *                maxItems: 50
+ *                items:
+ *                  type: string
+ *              photos:
+ *                type: array
+ *                maxItems: 20
+ *                items:
+ *                  type: string
+ *                  format: uri
  *     responses:
  *      201:
  *        description: Created
@@ -120,16 +201,73 @@ router.route('/').get(propertyController.getPropertyList);
  *        application/json:
  *           schema:
  *            type: object
+ *            required:
+ *              - title
+ *              - description
+ *              - price
+ *              - addressLine
+ *              - city
+ *              - bedrooms
+ *              - bathrooms
+ *              - sqft
  *            properties:
  *              title:
  *                type: string
- *                default: ''
+ *                example: Modern family home
  *              description:
  *                type: string
- *                default: ''
+ *                example: Spacious home close to the city centre
  *              price:
+ *                type: number
+ *                format: float
+ *                example: 650000
+ *              type:
  *                type: string
- *                default: 0
+ *                enum: [HOUSE, CONDO, TOWNHOME, LAND]
+ *                default: HOUSE
+ *              status:
+ *                type: string
+ *                enum: [DRAFT, ACTIVE, PENDING, SOLD]
+ *                default: DRAFT
+ *              addressLine:
+ *                type: string
+ *                example: 214 Maple Ridge Rd
+ *              city:
+ *                type: string
+ *                example: Ashbourne
+ *              bedrooms:
+ *                type: integer
+ *                minimum: 0
+ *                example: 4
+ *              bathrooms:
+ *                type: number
+ *                format: float
+ *                minimum: 0
+ *                example: 2.5
+ *              sqft:
+ *                type: integer
+ *                minimum: 0
+ *                example: 2200
+ *              lotSizeAcres:
+ *                type: number
+ *                format: float
+ *                minimum: 0
+ *                nullable: true
+ *              yearBuilt:
+ *                type: integer
+ *                minimum: 1800
+ *                nullable: true
+ *              amenities:
+ *                type: array
+ *                maxItems: 50
+ *                items:
+ *                  type: string
+ *              photos:
+ *                type: array
+ *                maxItems: 20
+ *                items:
+ *                  type: string
+ *                  format: uri
  *     responses:
  *      200:
  *        description: Modified
@@ -144,7 +282,7 @@ router.route('/').get(propertyController.getPropertyList);
  *      500:
  *        description: Server Error
  */
-router.route('/:id').put(authenticate, propertyController.updateProperty);
+router.route('/:id').put(authenticate, validateUpdateProperty, propertyController.updateProperty);
 
 /** DELETE Methods */
 /**

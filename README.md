@@ -132,6 +132,21 @@ Tokens can also still be generated manually for local development/testing (see `
 
 All `/api/v1/users` routes additionally require the caller to be an **enabled admin**: on every request, the JWT's `email` claim is looked up against the `User` table, and the request is rejected with `403` unless a matching row has `role: ADMIN` and `isEnabled: true`. See the `ADMIN_USER` row in the Setup env var table above for seeding the first admin.
 
+## Property Details (BR-14)
+
+Authenticated property create and update requests require `title`, `description`, `price`, `addressLine`, `city`, `bedrooms`, `bathrooms`, and `sqft`. They can also include:
+
+- `type`: `HOUSE`, `CONDO`, `TOWNHOME`, or `LAND`
+- `status`: `DRAFT`, `ACTIVE`, `PENDING`, or `SOLD`
+- `lotSizeAcres`: a non-negative number or `null`
+- `yearBuilt`: a year from 1800 through next year, or `null`
+- `amenities`: up to 50 non-empty strings
+- `photos`: up to 20 absolute HTTP(S) image URLs; their array order is stored as the display order
+
+Do not send `agentId`. The API derives property ownership from the enabled database user identified by the bearer token. Owners and administrators can update or delete a property; public list and detail responses expose only the agent's UUID and email. On update, omitting `photos` preserves the existing set, providing a new array replaces it atomically, and sending an empty array removes all photos.
+
+> **Migration warning:** migration `20260714093227_add_property_details` deletes every pre-agent `Property` row before adding required ownership and address fields. It is intended for disposable development fixtures only. Do not apply it to a database containing real property data; replace the deletion with a reviewed ownership/address backfill migration first.
+
 ## Project Tracking
 
 - **Jira:** [BR project](https://ixawave.atlassian.net/jira/projects/BR) — backlog and active work
