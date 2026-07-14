@@ -78,15 +78,23 @@ Interactive Swagger UI is served at `/docs` once the server is running (e.g. `ht
 | GET    | `/api/v1/properties/:id`| No             | Get a property by id    |
 | PUT    | `/api/v1/properties/:id`| Yes            | Update a property        |
 | DELETE | `/api/v1/properties/:id`| Yes            | Delete a property        |
-| POST   | `/api/v1/users`          | Yes            | Create a user            |
-| GET    | `/api/v1/users`          | Yes            | List users                |
-| GET    | `/api/v1/users/:id`      | Yes            | Get a user by id          |
-| PUT    | `/api/v1/users/:id`      | Yes            | Update a user             |
-| DELETE | `/api/v1/users/:id`      | Yes            | Delete a user              |
+| POST   | `/api/v1/users`          | Yes (Admin)    | Create a user            |
+| GET    | `/api/v1/users`          | Yes (Admin)    | List users                |
+| GET    | `/api/v1/users/:id`      | Yes (Admin)    | Get a user by id          |
+| PUT    | `/api/v1/users/:id`      | Yes (Admin)    | Update a user             |
+| DELETE | `/api/v1/users/:id`      | Yes (Admin)    | Delete a user              |
 
 ## Authentication
 
 Protected routes expect a `Bearer` JWT, signed with `JWT_SECRET`, in the `Authorization` header. There is currently **no login endpoint** to issue tokens through the API itself — tokens must be generated manually (see `src/utils/jwt-utils.js`). Adding a proper login flow (Google OAuth) is tracked as an issue in the Jira project linked below.
+
+All `/api/v1/users` routes additionally require the caller to be an **enabled admin**: on every request, the JWT's `email` claim is looked up against the `User` table, and the request is rejected with `403` unless a matching row has `role: ADMIN` and `isEnabled: true`. Seed the first admin from the `ADMIN_USER` env var:
+
+```bash
+npm run db:seed
+```
+
+`ADMIN_PASS` is reserved for a future password-based flow and is not currently used anywhere — admin identity is entirely DB-driven via `ADMIN_USER`'s email.
 
 ## Project Tracking
 
