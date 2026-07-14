@@ -5,6 +5,7 @@ import { config } from 'dotenv';
 import swaggerDocs from './swagger.js';
 import authenticate from './middlewares/auth.middleware.js';
 import requireAdmin from './middlewares/require-admin.middleware.js';
+import authRoutes from './routes/v1/auth.routes.js';
 import propertiesRoutes from './routes/v1/properties.js';
 import usersRoutes from './routes/v1/users.routes.js';
 
@@ -22,6 +23,7 @@ app.get('/', (req, res) =>
 {
     res.send('Welcome to the Property Listings API!');
 });
+app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/properties', propertiesRoutes);
 app.use('/api/v1/users', authenticate, requireAdmin, usersRoutes);
 
