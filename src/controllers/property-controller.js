@@ -1,10 +1,18 @@
+import { validationResult } from 'express-validator';
 import propertyModel from '../models/property-model.js';
 
 const propertyController = {
     createProperty: async (req, res) =>
     {
-        try 
+        try
         {
+            const errors = validationResult(req);
+
+            if (!errors.isEmpty())
+            {
+                return res.status(400).json({ errors: errors.array() });
+            }
+
             const { title, description, price } = req.body;
             const numericPrice = parseFloat(price);
             const result = await propertyModel.createProperty({ title, description, price: numericPrice });
