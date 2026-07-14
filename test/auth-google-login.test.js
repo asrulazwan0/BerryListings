@@ -8,21 +8,18 @@ import generateUniqueId from '../src/utils/unique-id.js';
 const { verifyIdToken } = vi.hoisted(() => ({ verifyIdToken: vi.fn() }));
 
 vi.mock('google-auth-library', () => ({
-    OAuth2Client: vi.fn().mockImplementation(function OAuth2Client()
-    {
+    OAuth2Client: vi.fn().mockImplementation(function OAuth2Client() {
         return { verifyIdToken };
     }),
 }));
 
 const prisma = new PrismaClient();
 
-describe('POST /api/v1/auth/google', () =>
-{
+describe('POST /api/v1/auth/google', () => {
     let enabledEmail;
     let disabledEmail;
 
-    beforeAll(async () =>
-    {
+    beforeAll(async () => {
         enabledEmail = `vitest-google-${Date.now()}@example.com`;
         disabledEmail = `vitest-google-disabled-${Date.now()}@example.com`;
 
@@ -30,26 +27,28 @@ describe('POST /api/v1/auth/google', () =>
             data: { uuid: generateUniqueId(), email: enabledEmail, isEnabled: true, role: 'USER' },
         });
         await prisma.user.create({
-            data: { uuid: generateUniqueId(), email: disabledEmail, isEnabled: false, role: 'USER' },
+            data: {
+                uuid: generateUniqueId(),
+                email: disabledEmail,
+                isEnabled: false,
+                role: 'USER',
+            },
         });
     });
 
-    afterAll(async () =>
-    {
+    afterAll(async () => {
         await prisma.user.delete({ where: { email: enabledEmail } });
         await prisma.user.delete({ where: { email: disabledEmail } });
         await prisma.$disconnect();
     });
 
-    it('rejects a request with no idToken', async () =>
-    {
+    it('rejects a request with no idToken', async () => {
         const res = await request(app).post('/api/v1/auth/google').send({});
 
         expect(res.status).toBe(400);
     });
 
-    it('rejects an invalid/unverifiable Google token', async () =>
-    {
+    it('rejects an invalid/unverifiable Google token', async () => {
         verifyIdToken.mockRejectedValueOnce(new Error('bad token'));
 
         const res = await request(app).post('/api/v1/auth/google').send({ idToken: 'garbage' });
@@ -57,8 +56,7 @@ describe('POST /api/v1/auth/google', () =>
         expect(res.status).toBe(401);
     });
 
-    it('rejects a verified token whose email is not registered', async () =>
-    {
+    it('rejects a verified token whose email is not registered', async () => {
         verifyIdToken.mockResolvedValueOnce({
             getPayload: () => ({ email: 'stranger@example.com', email_verified: true }),
         });
@@ -68,8 +66,7 @@ describe('POST /api/v1/auth/google', () =>
         expect(res.status).toBe(403);
     });
 
-    it('rejects a verified token for a disabled user', async () =>
-    {
+    it('rejects a verified token for a disabled user', async () => {
         verifyIdToken.mockResolvedValueOnce({
             getPayload: () => ({ email: disabledEmail, email_verified: true }),
         });
@@ -79,8 +76,7 @@ describe('POST /api/v1/auth/google', () =>
         expect(res.status).toBe(403);
     });
 
-    it('logs in an enabled, registered user and returns a bearer token', async () =>
-    {
+    it('logs in an enabled, registered user and returns a bearer token', async () => {
         verifyIdToken.mockResolvedValueOnce({
             getPayload: () => ({ email: enabledEmail, email_verified: true }),
         });

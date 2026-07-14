@@ -5,29 +5,26 @@ import generateAccessToken from '../utils/jwt-utils.js';
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const authService = {
-    loginWithGoogle: async (idToken) =>
-    {
+    loginWithGoogle: async (idToken) => {
         let payload;
 
-        try
-        {
-            const ticket = await client.verifyIdToken({ idToken, audience: process.env.GOOGLE_CLIENT_ID });
+        try {
+            const ticket = await client.verifyIdToken({
+                idToken,
+                audience: process.env.GOOGLE_CLIENT_ID,
+            });
             payload = ticket.getPayload();
-        }
-        catch (error)
-        {
+        } catch (error) {
             return { error: 'invalid_token' };
         }
 
-        if (!payload?.email || !payload.email_verified)
-        {
+        if (!payload?.email || !payload.email_verified) {
             return { error: 'invalid_token' };
         }
 
         const user = await userModel.getUserByEmail(payload.email);
 
-        if (!user || !user.isEnabled)
-        {
+        if (!user || !user.isEnabled) {
             return { error: 'not_registered' };
         }
 
@@ -35,6 +32,6 @@ const authService = {
 
         return { token, user };
     },
-}
+};
 
-export default authService
+export default authService;

@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router } from 'express';
 import authController from '../../controllers/auth-controller.js';
 const router = Router();
 
@@ -35,4 +35,4 @@ const router = Router();
  */
 router.route('/google').post(authController.googleLogin);
 
-export default router
+export default router;

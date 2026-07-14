@@ -83,6 +83,19 @@ npm test   # runs the vitest suite (unit + supertest integration tests)
 
 The integration tests exercise the real routes/controllers against a live database, so run them with a database available -- e.g. `docker compose exec app npm test` using the Docker Compose dev stack above.
 
+## Code Style
+
+Linting and formatting are enforced via ESLint (`eslint.config.js`) and Prettier (`.prettierrc`):
+
+```bash
+npm run lint          # check for lint errors
+npm run lint:fix       # auto-fix lint errors where possible
+npm run format         # format the codebase with Prettier
+npm run format:check   # check formatting without writing changes
+```
+
+A `pre-commit` hook (Husky + lint-staged) runs `eslint --fix` and `prettier --write` automatically on staged `.js` files, so most style issues are caught before a commit is made.
+
 ## API Documentation
 
 Interactive Swagger UI is served at `/docs` once the server is running (e.g. `http://localhost:3000/docs`), with the raw OpenAPI spec at `/docs.json`.

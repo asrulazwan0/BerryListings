@@ -1,14 +1,11 @@
 import { validationResult } from 'express-validator';
 import userModel from '../models/user.model.js';
 
-const createUser = async (req, res) =>
-{
-    try 
-    {
+const createUser = async (req, res) => {
+    try {
         const errors = validationResult(req);
-    
-        if (!errors.isEmpty()) 
-        {
+
+        if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
 
@@ -16,11 +13,8 @@ const createUser = async (req, res) =>
         const result = await userModel.createUser(email);
 
         res.status(201).json({ message: 'User created successfully', data: result });
-    }
-    catch (error)
-    {
-        if (error.code === 'P2002')
-        {
+    } catch (error) {
+        if (error.code === 'P2002') {
             return res.status(409).json({ error: 'A user with this email already exists' });
         }
 
@@ -29,64 +23,49 @@ const createUser = async (req, res) =>
     }
 };
 
-const getUserList = async (req, res) =>
-{
-    try
-    {
+const getUserList = async (req, res) => {
+    try {
         const userList = await userModel.getUserList();
         res.json({ message: 'get user list', data: userList });
-    }
-    catch (error)
-    {
+    } catch (error) {
         console.error(error.stack);
         res.status(500).json({ error: 'Error fetching user list' });
     }
 };
 
-const getUserById = async (req, res) =>
-{
+const getUserById = async (req, res) => {
     const { id } = req.params;
 
-    try
-    {
+    try {
         const user = await userModel.getUserByUuid(id);
 
-        if (!user)
-        {
+        if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
         res.json({ message: `get user id ${id}`, data: user });
-    }
-    catch (error)
-    {
+    } catch (error) {
         console.error(error.stack);
         res.status(500).json({ error: `Error fetching user id ${id}` });
     }
 };
 
-const updateUser = async (req, res) => 
-{
+const updateUser = async (req, res) => {
     const { id } = req.params;
 
-    try 
-    {
+    try {
         const { email, isEnabled } = req.body;
         const user = await userModel.getUserByUuid(id);
-    
-        if (!user) 
-        {
+
+        if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
         const result = await userModel.updateUser(user, { email, isEnabled });
 
         res.json({ message: `User with id ${id} updated successfully`, data: result });
-    }
-    catch (error)
-    {
-        if (error.code === 'P2002')
-        {
+    } catch (error) {
+        if (error.code === 'P2002') {
             return res.status(409).json({ error: 'A user with this email already exists' });
         }
 
@@ -95,34 +74,28 @@ const updateUser = async (req, res) =>
     }
 };
 
-const deleteUser = async (req, res) => 
-{
+const deleteUser = async (req, res) => {
     const { id } = req.params;
 
-    try 
-    {
+    try {
         const user = await userModel.getUserByUuid(id);
-    
-        if (!user) 
-        {
+
+        if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
         await userModel.deleteUser(user.uuid);
 
         res.status(204).send();
-    } 
-    catch (error) 
-    {
+    } catch (error) {
         res.status(500).json({ error: `Error deleting user id ${id}` });
     }
 };
 
-export default 
-{
+export default {
     createUser,
     getUserList,
     getUserById,
     updateUser,
-    deleteUser
+    deleteUser,
 };

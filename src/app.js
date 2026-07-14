@@ -9,7 +9,7 @@ import authRoutes from './routes/v1/auth.routes.js';
 import propertiesRoutes from './routes/v1/properties.js';
 import usersRoutes from './routes/v1/users.routes.js';
 
-config()
+config();
 const PORT = process.env.PORT || 3000;
 const app = express();
 
@@ -19,24 +19,20 @@ app.use(cors());
 app.disable('x-powered-by');
 
 /** api routes */
-app.get('/', (req, res) =>
-{
+app.get('/', (req, res) => {
     res.send('Welcome to the Property Listings API!');
 });
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/properties', propertiesRoutes);
 app.use('/api/v1/users', authenticate, requireAdmin, usersRoutes);
 
-app.use((err, req, res, next) =>
-{
+app.use((err, req, res, _next) => {
     console.error(err.stack);
     res.status(500).json({ error: 'Internal Server Error' });
 });
 
-if (process.env.NODE_ENV !== 'test')
-{
-    app.listen(PORT, () =>
-    {
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
     });
     swaggerDocs(app, PORT);

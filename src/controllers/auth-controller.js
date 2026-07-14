@@ -1,27 +1,24 @@
 import authService from '../services/auth-service.js';
 
 const authController = {
-    googleLogin: async (req, res) =>
-    {
-        try
-        {
+    googleLogin: async (req, res) => {
+        try {
             const { idToken } = req.body;
 
-            if (!idToken)
-            {
+            if (!idToken) {
                 return res.status(400).json({ error: 'idToken is required' });
             }
 
             const result = await authService.loginWithGoogle(idToken);
 
-            if (result.error === 'invalid_token')
-            {
+            if (result.error === 'invalid_token') {
                 return res.status(401).json({ error: 'Invalid Google token' });
             }
 
-            if (result.error === 'not_registered')
-            {
-                return res.status(403).json({ error: 'This email is not registered. Contact an admin to be added.' });
+            if (result.error === 'not_registered') {
+                return res
+                    .status(403)
+                    .json({ error: 'This email is not registered. Contact an admin to be added.' });
             }
 
             res.status(200).json({
@@ -35,13 +32,11 @@ const authController = {
                     },
                 },
             });
-        }
-        catch (error)
-        {
+        } catch (error) {
             console.error(error.stack);
             res.status(500).json({ error: 'Error logging in' });
         }
     },
-}
+};
 
-export default authController
+export default authController;

@@ -3,12 +3,10 @@ import generateUniqueId from '../src/utils/unique-id.js';
 
 const prisma = new PrismaClient();
 
-async function main()
-{
+async function main() {
     const email = process.env.ADMIN_USER;
 
-    if (!email)
-    {
+    if (!email) {
         console.log('ADMIN_USER is not set -- skipping admin seed.');
         return;
     }
@@ -23,12 +21,10 @@ async function main()
 }
 
 main()
-    .catch((error) =>
-    {
+    .catch((error) => {
         console.error(error);
         process.exitCode = 1;
     })
-    .finally(async () =>
-    {
+    .finally(async () => {
         await prisma.$disconnect();
     });

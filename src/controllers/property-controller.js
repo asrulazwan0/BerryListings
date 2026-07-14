@@ -2,14 +2,11 @@ import { validationResult } from 'express-validator';
 import propertyService from '../services/property-service.js';
 
 const propertyController = {
-    createProperty: async (req, res) =>
-    {
-        try
-        {
+    createProperty: async (req, res) => {
+        try {
             const errors = validationResult(req);
 
-            if (!errors.isEmpty())
-            {
+            if (!errors.isEmpty()) {
                 return res.status(400).json({ errors: errors.array() });
             }
 
@@ -17,90 +14,69 @@ const propertyController = {
             const result = await propertyService.createProperty({ title, description, price });
 
             res.status(201).json({ message: 'Property created successfully', data: result });
-        }
-        catch (error)
-        {
+        } catch (error) {
             console.error(error.stack);
             res.status(500).json({ error: 'Error creating property' });
         }
     },
-    getPropertyList: async (req, res) =>
-    {
-        try
-        {
+    getPropertyList: async (req, res) => {
+        try {
             const propertyList = await propertyService.getPropertyList();
             res.json({ message: 'get property list', data: propertyList });
-        }
-        catch (error)
-        {
+        } catch (error) {
             console.error(error.stack);
             res.status(500).json({ error: 'Error fetching property list' });
         }
     },
-    getPropertyById: async (req, res) =>
-    {
+    getPropertyById: async (req, res) => {
         const { id } = req.params;
 
-        try
-        {
+        try {
             const property = await propertyService.getPropertyByUuid(id);
 
-            if (!property)
-            {
+            if (!property) {
                 return res.status(404).json({ message: 'Property not found' });
             }
 
             res.json({ message: `get property id ${id}`, data: property });
-        }
-        catch (error)
-        {
+        } catch (error) {
             console.error(error.stack);
             res.status(500).json({ error: `Error fetching property id ${id}` });
         }
     },
-    updateProperty: async (req, res) =>
-    {
+    updateProperty: async (req, res) => {
         const { id } = req.params;
 
-        try
-        {
+        try {
             const { title, description, price } = req.body;
             const result = await propertyService.updateProperty(id, { title, description, price });
 
-            if (!result)
-            {
+            if (!result) {
                 return res.status(404).json({ message: 'Property not found' });
             }
 
             res.json({ message: `Property with id ${id} updated successfully`, data: result });
-        }
-        catch (error)
-        {
+        } catch (error) {
             console.error(error.stack);
             res.status(500).json({ error: `Error updating property id ${id}` });
         }
     },
-    deleteProperty: async (req, res) =>
-    {
+    deleteProperty: async (req, res) => {
         const { id } = req.params;
 
-        try
-        {
+        try {
             const result = await propertyService.deleteProperty(id);
 
-            if (!result)
-            {
+            if (!result) {
                 return res.status(404).json({ message: 'Property not found' });
             }
 
             res.status(204).send();
-        }
-        catch (error)
-        {
+        } catch (error) {
             console.error(error.stack);
             res.status(500).json({ error: `Error deleting property id ${id}` });
         }
     },
-}
+};
 
-export default propertyController
+export default propertyController;
