@@ -43,6 +43,7 @@ const propertyModel = {
         yearBuilt,
         amenities,
         agentId,
+        photos,
     }) => {
         const property = await prisma.property.create({
             data: {
@@ -61,6 +62,7 @@ const propertyModel = {
                 yearBuilt,
                 amenities,
                 agentId,
+                photos: photos?.length ? { create: photos } : undefined,
             },
             select: publicPropertySelect,
         });
@@ -96,7 +98,7 @@ const propertyModel = {
             yearBuilt,
             amenities,
             agentId,
-        }
+        },
     ) => {
         const result = await prisma.property.update({
             where: { uuid: property.uuid },

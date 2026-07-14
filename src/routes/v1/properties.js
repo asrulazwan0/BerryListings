@@ -19,13 +19,18 @@ const propertyFieldValidators = [
     check('bathrooms').isFloat({ min: 0 }),
     check('sqft').isInt({ min: 0 }),
     check('lotSizeAcres').optional({ values: 'null' }).isFloat({ min: 0 }),
-    check('yearBuilt').optional({ values: 'null' }).isInt({ min: 1800, max: new Date().getFullYear() + 1 }),
+    check('yearBuilt')
+        .optional({ values: 'null' })
+        .isInt({ min: 1800, max: new Date().getFullYear() + 1 }),
     check('amenities').optional().isArray(),
+    check('photos').optional().isArray({ max: 20 }),
+    check('photos.*')
+        .optional()
+        .isURL({ protocols: ['http', 'https'], require_protocol: true }),
     check('agentId').not().exists().withMessage('agentId is derived from authentication'),
 ];
 
 const validateCreateProperty = propertyFieldValidators;
-const validateUpdateProperty = propertyFieldValidators;
 
 /** POST Methods */
 /**

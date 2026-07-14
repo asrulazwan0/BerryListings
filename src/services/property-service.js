@@ -26,8 +26,14 @@ const toPropertyData = ({
     bedrooms: parseInt(bedrooms, 10),
     bathrooms: parseFloat(bathrooms),
     sqft: parseInt(sqft, 10),
-    lotSizeAcres: lotSizeAcres === undefined || lotSizeAcres === null || lotSizeAcres === '' ? null : parseFloat(lotSizeAcres),
-    yearBuilt: yearBuilt === undefined || yearBuilt === null || yearBuilt === '' ? null : parseInt(yearBuilt, 10),
+    lotSizeAcres:
+        lotSizeAcres === undefined || lotSizeAcres === null || lotSizeAcres === ''
+            ? null
+            : parseFloat(lotSizeAcres),
+    yearBuilt:
+        yearBuilt === undefined || yearBuilt === null || yearBuilt === ''
+            ? null
+            : parseInt(yearBuilt, 10),
     amenities,
 });
 
@@ -38,6 +44,8 @@ const getEnabledActor = async (actorId) => {
     const actor = await userModel.getUserById(id);
     return actor?.isEnabled ? actor : null;
 };
+
+const toPhotos = (photos) => photos?.map((url, position) => ({ url: url.trim(), position }));
 
 const propertyService = {
     createProperty: async (payload, actorId) => {
@@ -50,6 +58,7 @@ const propertyService = {
         const data = await propertyModel.createProperty({
             ...toPropertyData(payload),
             agentId: actor.id,
+            photos: toPhotos(payload.photos),
         });
 
         return { data };

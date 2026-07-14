@@ -22,6 +22,10 @@ const validPropertyPayload = (overrides = {}) => ({
     lotSizeAcres: '0.4',
     yearBuilt: '2018',
     amenities: ['Attached garage', 'Hardwood floors'],
+    photos: [
+        'https://images.example.com/maple-front.jpg',
+        'https://images.example.com/maple-kitchen.jpg',
+    ],
     ...overrides,
 });
 
@@ -48,9 +52,7 @@ describe('properties API', () => {
     });
 
     it('rejects property creation without a token', async () => {
-        const res = await request(app)
-            .post('/api/v1/properties')
-            .send(validPropertyPayload());
+        const res = await request(app).post('/api/v1/properties').send(validPropertyPayload());
 
         expect(res.status).toBe(401);
     });
@@ -88,6 +90,10 @@ describe('properties API', () => {
             price: 685000,
         });
         expect(res.body.data.agent).toEqual({ uuid: owner.uuid, email: owner.email });
+        expect(res.body.data.photos).toEqual([
+            { url: 'https://images.example.com/maple-front.jpg', position: 0 },
+            { url: 'https://images.example.com/maple-kitchen.jpg', position: 1 },
+        ]);
         expect(res.body.data).not.toHaveProperty('id');
         expect(res.body.data).not.toHaveProperty('agentId');
         createdUuids.push(res.body.data.uuid);
