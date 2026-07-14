@@ -25,21 +25,38 @@ const createUser = async (req, res) =>
 
 const getUserList = async (req, res) =>
 {
-    const userList = await userModel.getUserList();
-    res.json({ message: 'get user list', data: userList });
+    try
+    {
+        const userList = await userModel.getUserList();
+        res.json({ message: 'get user list', data: userList });
+    }
+    catch (error)
+    {
+        console.error(error.stack);
+        res.status(500).json({ error: 'Error fetching user list' });
+    }
 };
 
 const getUserById = async (req, res) =>
 {
     const { id } = req.params;
-    const user = await userModel.getUserByUuid(id);
 
-    if (!user) 
+    try
     {
-        return res.status(404).json({ message: 'User not found' });
-    }
+        const user = await userModel.getUserByUuid(id);
 
-    res.json({ message: `get user id ${id}`, data: user });
+        if (!user)
+        {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json({ message: `get user id ${id}`, data: user });
+    }
+    catch (error)
+    {
+        console.error(error.stack);
+        res.status(500).json({ error: `Error fetching user id ${id}` });
+    }
 };
 
 const updateUser = async (req, res) => 
@@ -60,9 +77,9 @@ const updateUser = async (req, res) =>
 
         res.json({ message: `User with id ${id} updated successfully`, data: result });
     }
-    catch (error) 
+    catch (error)
     {
-        console.log(error)
+        console.error(error.stack);
         res.status(500).json({ error: `Error updating user id ${id}` });
     }
 };

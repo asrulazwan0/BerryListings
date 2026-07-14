@@ -19,20 +19,37 @@ const propertyController = {
     },
     getPropertyList: async (req, res) =>
     {
-        const propertyList = await propertyModel.getPropertyList();
-        res.json({ message: 'get property list', data: propertyList });
+        try
+        {
+            const propertyList = await propertyModel.getPropertyList();
+            res.json({ message: 'get property list', data: propertyList });
+        }
+        catch (error)
+        {
+            console.error(error.stack);
+            res.status(500).json({ error: 'Error fetching property list' });
+        }
     },
     getPropertyById: async (req, res) =>
     {
         const { id } = req.params;
-        const property = await propertyModel.getPropertyByUuid(id);
-    
-        if (!property) 
+
+        try
         {
-            return res.status(404).json({ message: 'Property not found' });
+            const property = await propertyModel.getPropertyByUuid(id);
+
+            if (!property)
+            {
+                return res.status(404).json({ message: 'Property not found' });
+            }
+
+            res.json({ message: `get property id ${id}`, data: property });
         }
-    
-        res.json({ message: `get property id ${id}`, data: property });
+        catch (error)
+        {
+            console.error(error.stack);
+            res.status(500).json({ error: `Error fetching property id ${id}` });
+        }
     },
     updateProperty: async (req, res) => 
     {
