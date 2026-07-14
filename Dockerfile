@@ -13,6 +13,9 @@ RUN npm install
 # Copy the rest of your application code
 COPY . .
 
+# Run as the non-root user built into the official Node image, not root
+USER node
+
 # Expose the port your API listens on
 EXPOSE 3000
 
