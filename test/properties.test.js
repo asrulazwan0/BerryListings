@@ -1,29 +1,56 @@
 import 'dotenv/config';
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
+import { PrismaClient } from '@prisma/client';
 import app from '../src/app.js';
 import generateAccessToken from '../src/utils/jwt-utils.js';
+import generateUniqueId from '../src/utils/unique-id.js';
+
+const prisma = new PrismaClient();
+
+const validPropertyPayload = (overrides = {}) => ({
+    title: 'Maple Ridge Craftsman',
+    description: 'A thoughtfully updated craftsman home.',
+    price: '685000',
+    type: 'HOUSE',
+    status: 'ACTIVE',
+    addressLine: '214 Maple Ridge Rd',
+    city: 'Ashbourne',
+    bedrooms: '4',
+    bathrooms: '3',
+    sqft: '2340',
+    lotSizeAcres: '0.4',
+    yearBuilt: '2018',
+    amenities: ['Attached garage', 'Hardwood floors'],
+    ...overrides,
+});
 
 describe('properties API', () => {
     let token;
+    let owner;
     const createdUuids = [];
 
-    beforeAll(() => {
-        token = generateAccessToken({ id: 1, email: 'test@test.com' });
+    beforeAll(async () => {
+        owner = await prisma.user.create({
+            data: {
+                uuid: generateUniqueId(),
+                email: `vitest-property-owner-${Date.now()}@example.com`,
+                isEnabled: true,
+            },
+        });
+        token = generateAccessToken({ id: owner.id, email: owner.email });
     });
 
     afterAll(async () => {
-        for (const uuid of createdUuids) {
-            await request(app)
-                .delete(`/api/v1/properties/${uuid}`)
-                .set('Authorization', `Bearer ${token}`);
-        }
+        await prisma.property.deleteMany({ where: { agentId: owner.id } });
+        await prisma.user.delete({ where: { id: owner.id } });
+        await prisma.$disconnect();
     });
 
     it('rejects property creation without a token', async () => {
         const res = await request(app)
             .post('/api/v1/properties')
-            .send({ title: 'No auth', description: 'desc', price: '100' });
+            .send(validPropertyPayload());
 
         expect(res.status).toBe(401);
     });
@@ -43,7 +70,7 @@ describe('properties API', () => {
         const res = await request(app)
             .post('/api/v1/properties')
             .set('Authorization', `Bearer ${token}`)
-            .send({ title: 'Bad price', description: 'desc', price: '-5' });
+            .send(validPropertyPayload({ price: '-5' }));
 
         expect(res.status).toBe(400);
     });
@@ -52,14 +79,17 @@ describe('properties API', () => {
         const res = await request(app)
             .post('/api/v1/properties')
             .set('Authorization', `Bearer ${token}`)
-            .send({ title: 'Test Villa', description: 'A nice place', price: '250000' });
+            .send(validPropertyPayload());
 
         expect(res.status).toBe(201);
         expect(res.body.data).toMatchObject({
-            title: 'Test Villa',
-            description: 'A nice place',
-            price: 250000,
+            title: 'Maple Ridge Craftsman',
+            description: 'A thoughtfully updated craftsman home.',
+            price: 685000,
         });
+        expect(res.body.data.agent).toEqual({ uuid: owner.uuid, email: owner.email });
+        expect(res.body.data).not.toHaveProperty('id');
+        expect(res.body.data).not.toHaveProperty('agentId');
         createdUuids.push(res.body.data.uuid);
     });
 
@@ -87,7 +117,7 @@ describe('properties API', () => {
         const res = await request(app)
             .put(`/api/v1/properties/${createdUuids[0]}`)
             .set('Authorization', `Bearer ${token}`)
-            .send({ title: 'Updated Villa', description: 'Updated desc', price: '260000' });
+            .send(validPropertyPayload({ title: 'Updated Villa', price: '260000' }));
 
         expect(res.status).toBe(200);
         expect(res.body.data.title).toBe('Updated Villa');
@@ -96,7 +126,7 @@ describe('properties API', () => {
     it('rejects update without a token', async () => {
         const res = await request(app)
             .put(`/api/v1/properties/${createdUuids[0]}`)
-            .send({ title: 'x', description: 'y', price: '1' });
+            .send(validPropertyPayload({ title: 'x', description: 'y', price: '1' }));
 
         expect(res.status).toBe(401);
     });

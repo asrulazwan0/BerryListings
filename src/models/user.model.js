@@ -29,6 +29,10 @@ const getUserByUuid = async (uuid) => {
     return user;
 };
 
+const getUserById = async (id) => {
+    return prisma.user.findUnique({ where: { id } });
+};
+
 const getUserByEmail = async (email) => {
     const user = await prisma.user.findUnique({
         where: { email: email },
@@ -58,6 +62,7 @@ const deleteUser = async (uuid) => {
 export default {
     createUser,
     getUserList,
+    getUserById,
     getUserByUuid,
     getUserByEmail,
     updateUser,

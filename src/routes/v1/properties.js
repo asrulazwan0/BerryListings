@@ -4,11 +4,28 @@ import authenticate from '../../middlewares/auth.middleware.js';
 import propertyController from '../../controllers/property-controller.js';
 const router = Router();
 
-const validateCreateProperty = [
+const PROPERTY_TYPES = ['HOUSE', 'CONDO', 'TOWNHOME', 'LAND'];
+const PROPERTY_STATUSES = ['DRAFT', 'ACTIVE', 'PENDING', 'SOLD'];
+
+const propertyFieldValidators = [
     check('title').trim().notEmpty(),
     check('description').trim().notEmpty(),
     check('price').isFloat({ gt: 0 }),
+    check('type').optional().isIn(PROPERTY_TYPES),
+    check('status').optional().isIn(PROPERTY_STATUSES),
+    check('addressLine').trim().notEmpty(),
+    check('city').trim().notEmpty(),
+    check('bedrooms').isInt({ min: 0 }),
+    check('bathrooms').isFloat({ min: 0 }),
+    check('sqft').isInt({ min: 0 }),
+    check('lotSizeAcres').optional({ values: 'null' }).isFloat({ min: 0 }),
+    check('yearBuilt').optional({ values: 'null' }).isInt({ min: 1800, max: new Date().getFullYear() + 1 }),
+    check('amenities').optional().isArray(),
+    check('agentId').not().exists().withMessage('agentId is derived from authentication'),
 ];
+
+const validateCreateProperty = propertyFieldValidators;
+const validateUpdateProperty = propertyFieldValidators;
 
 /** POST Methods */
 /**
@@ -30,6 +47,11 @@ const validateCreateProperty = [
  *              - title
  *              - description
  *              - price
+ *              - addressLine
+ *              - city
+ *              - bedrooms
+ *              - bathrooms
+ *              - sqft
  *            properties:
  *              title:
  *                type: string
@@ -40,6 +62,39 @@ const validateCreateProperty = [
  *              price:
  *                type: string
  *                default: 0
+ *              type:
+ *                type: string
+ *                enum: [HOUSE, CONDO, TOWNHOME, LAND]
+ *                default: HOUSE
+ *              status:
+ *                type: string
+ *                enum: [DRAFT, ACTIVE, PENDING, SOLD]
+ *                default: DRAFT
+ *              addressLine:
+ *                type: string
+ *                default: 214 Maple Ridge Rd
+ *              city:
+ *                type: string
+ *                default: Ashbourne
+ *              bedrooms:
+ *                type: integer
+ *                default: 0
+ *              bathrooms:
+ *                type: number
+ *                default: 0
+ *              sqft:
+ *                type: integer
+ *                default: 0
+ *              lotSizeAcres:
+ *                type: number
+ *                nullable: true
+ *              yearBuilt:
+ *                type: integer
+ *                nullable: true
+ *              amenities:
+ *                type: array
+ *                items:
+ *                  type: string
  *     responses:
  *      201:
  *        description: Created

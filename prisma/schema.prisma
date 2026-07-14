@@ -18,18 +18,56 @@ enum Role {
   ADMIN
 }
 
+enum PropertyType {
+  HOUSE
+  CONDO
+  TOWNHOME
+  LAND
+}
+
+enum PropertyStatus {
+  DRAFT
+  ACTIVE
+  PENDING
+  SOLD
+}
+
 model User {
-  id        Int     @id @default(autoincrement())
-  uuid      String  @unique
-  email     String  @unique
-  isEnabled Boolean @default(false)
-  role      Role    @default(USER)
+  id         Int        @id @default(autoincrement())
+  uuid       String     @unique
+  email      String     @unique
+  isEnabled  Boolean    @default(false)
+  role       Role       @default(USER)
+  properties Property[]
 }
 
 model Property {
-  id          Int    @id @default(autoincrement())
-  uuid        String @unique
-  title       String
-  description String
-  price       Float
+  id           Int             @id @default(autoincrement())
+  uuid         String          @unique
+  title        String
+  description  String
+  price        Float
+  type         PropertyType    @default(HOUSE)
+  status       PropertyStatus  @default(DRAFT)
+  addressLine  String
+  city         String
+  bedrooms     Int
+  bathrooms    Float
+  sqft         Int
+  lotSizeAcres Float?
+  yearBuilt    Int?
+  amenities    Json?
+  agentId      Int
+  agent        User            @relation(fields: [agentId], references: [id])
+  photos       PropertyPhoto[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+}
+
+model PropertyPhoto {
+  id         Int      @id @default(autoincrement())
+  propertyId Int
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  url        String
+  position   Int      @default(0)
 }

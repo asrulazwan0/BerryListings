@@ -15,6 +15,23 @@ vi.mock('google-auth-library', () => ({
 
 const prisma = new PrismaClient();
 
+const validPropertyPayload = (overrides = {}) => ({
+    title: 'Maple Ridge Craftsman',
+    description: 'A thoughtfully updated craftsman home.',
+    price: '685000',
+    type: 'HOUSE',
+    status: 'ACTIVE',
+    addressLine: '214 Maple Ridge Rd',
+    city: 'Ashbourne',
+    bedrooms: '4',
+    bathrooms: '3',
+    sqft: '2340',
+    lotSizeAcres: '0.4',
+    yearBuilt: '2018',
+    amenities: ['Attached garage', 'Hardwood floors'],
+    ...overrides,
+});
+
 describe('POST /api/v1/auth/google', () => {
     let enabledEmail;
     let disabledEmail;
@@ -90,7 +107,13 @@ describe('POST /api/v1/auth/google', () => {
         const propertiesRes = await request(app)
             .post('/api/v1/properties')
             .set('Authorization', `Bearer ${res.body.data.token}`)
-            .send({ title: 'From google login', description: 'desc', price: '100' });
+            .send(
+                validPropertyPayload({
+                    title: 'From Google login',
+                    description: 'Created with a verified Google identity.',
+                    price: '100',
+                }),
+            );
 
         expect(propertiesRes.status).toBe(201);
         await request(app)

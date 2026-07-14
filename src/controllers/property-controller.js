@@ -10,10 +10,13 @@ const propertyController = {
                 return res.status(400).json({ errors: errors.array() });
             }
 
-            const { title, description, price } = req.body;
-            const result = await propertyService.createProperty({ title, description, price });
+            const result = await propertyService.createProperty(req.body, req.user.id);
 
-            res.status(201).json({ message: 'Property created successfully', data: result });
+            if (result.error === 'forbidden') {
+                return res.status(403).json({ error: 'Forbidden' });
+            }
+
+            res.status(201).json({ message: 'Property created successfully', data: result.data });
         } catch (error) {
             console.error(error.stack);
             res.status(500).json({ error: 'Error creating property' });
@@ -48,8 +51,13 @@ const propertyController = {
         const { id } = req.params;
 
         try {
-            const { title, description, price } = req.body;
-            const result = await propertyService.updateProperty(id, { title, description, price });
+            const errors = validationResult(req);
+
+            if (!errors.isEmpty()) {
+                return res.status(400).json({ errors: errors.array() });
+            }
+
+            const result = await propertyService.updateProperty(id, req.body);
 
             if (!result) {
                 return res.status(404).json({ message: 'Property not found' });
