@@ -18,6 +18,8 @@ const validateCreateProperty = [
  *     tags:
  *     - Property Controller
  *     summary: Create a property
+ *     security:
+ *      - bearerAuth: []
  *     requestBody:
  *      required: true
  *      content:
@@ -43,6 +45,10 @@ const validateCreateProperty = [
  *        description: Created
  *      400:
  *        description: Bad Request
+ *      401:
+ *        description: Unauthorized
+ *      403:
+ *        description: Forbidden
  *      409:
  *        description: Conflict
  *      500:
@@ -101,6 +107,8 @@ router.route('/').get(propertyController.getPropertyList);
  *     tags:
  *     - Property Controller
  *     summary: Modify a property by id
+ *     security:
+ *      - bearerAuth: []
  *     parameters:
  *      - name: id
  *        in: path
@@ -127,6 +135,10 @@ router.route('/').get(propertyController.getPropertyList);
  *        description: Modified
  *      400:
  *        description: Bad Request
+ *      401:
+ *        description: Unauthorized
+ *      403:
+ *        description: Forbidden
  *      404:
  *        description: Not Found
  *      500:
@@ -142,6 +154,8 @@ router.route('/:id').put(authenticate, propertyController.updateProperty);
  *     tags:
  *     - Property Controller
  *     summary: Delete property by Id
+ *     security:
+ *      - bearerAuth: []
  *     parameters:
  *      - name: id
  *        in: path
@@ -152,6 +166,10 @@ router.route('/:id').put(authenticate, propertyController.updateProperty);
  *        description: Removed
  *      400:
  *        description: Bad request
+ *      401:
+ *        description: Unauthorized
+ *      403:
+ *        description: Forbidden
  *      404:
  *        description: Not Found
  *      500:
