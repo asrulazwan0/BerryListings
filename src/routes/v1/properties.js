@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { check } from 'express-validator';
+import { body } from 'express-validator';
 import authenticate from '../../middlewares/auth.middleware.js';
 import propertyController from '../../controllers/property-controller.js';
 const router = Router();
@@ -7,30 +7,32 @@ const router = Router();
 const PROPERTY_TYPES = ['HOUSE', 'CONDO', 'TOWNHOME', 'LAND'];
 const PROPERTY_STATUSES = ['DRAFT', 'ACTIVE', 'PENDING', 'SOLD'];
 
-const propertyFieldValidators = [
-    check('title').trim().notEmpty(),
-    check('description').trim().notEmpty(),
-    check('price').isFloat({ gt: 0 }),
-    check('type').optional().isIn(PROPERTY_TYPES),
-    check('status').optional().isIn(PROPERTY_STATUSES),
-    check('addressLine').trim().notEmpty(),
-    check('city').trim().notEmpty(),
-    check('bedrooms').isInt({ min: 0 }),
-    check('bathrooms').isFloat({ min: 0 }),
-    check('sqft').isInt({ min: 0 }),
-    check('lotSizeAcres').optional({ values: 'null' }).isFloat({ min: 0 }),
-    check('yearBuilt')
-        .optional({ values: 'null' })
+const propertyFieldValidators = () => [
+    body('title').isString().trim().notEmpty(),
+    body('description').isString().trim().notEmpty(),
+    body('price').isFloat({ gt: 0 }),
+    body('type').optional().isIn(PROPERTY_TYPES),
+    body('status').optional().isIn(PROPERTY_STATUSES),
+    body('addressLine').isString().trim().notEmpty(),
+    body('city').isString().trim().notEmpty(),
+    body('bedrooms').isInt({ min: 0 }),
+    body('bathrooms').isFloat({ min: 0 }),
+    body('sqft').isInt({ min: 0 }),
+    body('lotSizeAcres').optional({ values: 'falsy' }).isFloat({ min: 0 }),
+    body('yearBuilt')
+        .optional({ values: 'falsy' })
         .isInt({ min: 1800, max: new Date().getFullYear() + 1 }),
-    check('amenities').optional().isArray(),
-    check('photos').optional().isArray({ max: 20 }),
-    check('photos.*')
+    body('amenities').optional().isArray({ max: 50 }),
+    body('amenities.*').optional().isString().trim().notEmpty(),
+    body('photos').optional().isArray({ max: 20 }),
+    body('photos.*')
         .optional()
         .isURL({ protocols: ['http', 'https'], require_protocol: true }),
-    check('agentId').not().exists().withMessage('agentId is derived from authentication'),
+    body('agentId').not().exists().withMessage('agentId is derived from authentication'),
 ];
 
-const validateCreateProperty = propertyFieldValidators;
+const validateCreateProperty = propertyFieldValidators();
+const validateUpdateProperty = propertyFieldValidators();
 
 /** POST Methods */
 /**
@@ -204,7 +206,7 @@ router.route('/').get(propertyController.getPropertyList);
  *      500:
  *        description: Server Error
  */
-router.route('/:id').put(authenticate, propertyController.updateProperty);
+router.route('/:id').put(authenticate, validateUpdateProperty, propertyController.updateProperty);
 
 /** DELETE Methods */
 /**

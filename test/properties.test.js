@@ -115,6 +115,34 @@ describe('properties API', () => {
         expect(res.status).toBe(400);
     });
 
+    it.each([
+        ['unknown type', { type: 'CASTLE' }],
+        ['unknown status', { status: 'HIDDEN' }],
+        ['negative bedrooms', { bedrooms: '-1' }],
+        ['year before 1800', { yearBuilt: '1700' }],
+        ['non-string amenity', { amenities: [42] }],
+        ['photo without an HTTP protocol', { photos: ['not-a-url'] }],
+        [
+            'more than twenty photos',
+            {
+                photos: Array.from(
+                    { length: 21 },
+                    (_, index) => `https://images.example.com/${index}.jpg`,
+                ),
+            },
+        ],
+        ['client-supplied agent', { agentId: 123 }],
+    ])('rejects invalid property detail: %s', async (_label, override) => {
+        const res = await request(app)
+            .post('/api/v1/properties')
+            .set('Authorization', `Bearer ${token}`)
+            .send({ ...validPropertyPayload(), ...override });
+
+        expect(res.status).toBe(400);
+        expect(res.body.errors).toBeInstanceOf(Array);
+        expect(res.body.errors.length).toBeGreaterThan(0);
+    });
+
     it('creates a property with a valid body', async () => {
         const res = await request(app)
             .post('/api/v1/properties')
@@ -182,6 +210,16 @@ describe('properties API', () => {
         expect(res.body.data.title).toBe('Updated Villa');
     });
 
+    it('validates the full update payload', async () => {
+        const res = await request(app)
+            .put(`/api/v1/properties/${createdUuids[0]}`)
+            .set('Authorization', `Bearer ${token}`)
+            .send(validPropertyPayload({ sqft: '-1' }));
+
+        expect(res.status).toBe(400);
+        expect(res.body.errors).toBeInstanceOf(Array);
+    });
+
     it('rejects an update from a non-owner', async () => {
         const res = await request(app)
             .put(`/api/v1/properties/${createdUuids[0]}`)
@@ -241,6 +279,50 @@ describe('properties API', () => {
         expect(res.body.data.photos).toEqual([
             { url: 'https://images.example.com/replacement.jpg', position: 0 },
         ]);
+    });
+
+    it('preserves optional property fields when they are omitted on update', async () => {
+        const payload = validPropertyPayload({ title: 'Optional fields preserved' });
+        for (const field of [
+            'type',
+            'status',
+            'lotSizeAcres',
+            'yearBuilt',
+            'amenities',
+            'photos',
+        ]) {
+            delete payload[field];
+        }
+
+        const res = await request(app)
+            .put(`/api/v1/properties/${createdUuids[0]}`)
+            .set('Authorization', `Bearer ${token}`)
+            .send(payload);
+
+        expect(res.status).toBe(200);
+        expect(res.body.data).toMatchObject({
+            type: 'HOUSE',
+            status: 'ACTIVE',
+            lotSizeAcres: 0.4,
+            yearBuilt: 2018,
+            amenities: ['Attached garage', 'Hardwood floors'],
+        });
+    });
+
+    it('trims amenity values before persistence', async () => {
+        const res = await request(app)
+            .post('/api/v1/properties')
+            .set('Authorization', `Bearer ${token}`)
+            .send(
+                validPropertyPayload({
+                    title: 'Trimmed amenities',
+                    amenities: ['  Attached garage  ', ' Hardwood floors '],
+                }),
+            );
+
+        expect(res.status).toBe(201);
+        expect(res.body.data.amenities).toEqual(['Attached garage', 'Hardwood floors']);
+        createdUuids.push(res.body.data.uuid);
     });
 
     it('rejects update without a token', async () => {

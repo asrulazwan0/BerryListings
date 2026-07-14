@@ -1,41 +1,40 @@
 import propertyModel from '../models/property-model.js';
 import userModel from '../models/user.model.js';
 
-const toPropertyData = ({
-    title,
-    description,
-    price,
-    type,
-    status,
-    addressLine,
-    city,
-    bedrooms,
-    bathrooms,
-    sqft,
-    lotSizeAcres,
-    yearBuilt,
-    amenities,
-}) => ({
-    title,
-    description,
-    price: parseFloat(price),
-    type,
-    status,
-    addressLine,
-    city,
-    bedrooms: parseInt(bedrooms, 10),
-    bathrooms: parseFloat(bathrooms),
-    sqft: parseInt(sqft, 10),
-    lotSizeAcres:
-        lotSizeAcres === undefined || lotSizeAcres === null || lotSizeAcres === ''
-            ? null
-            : parseFloat(lotSizeAcres),
-    yearBuilt:
-        yearBuilt === undefined || yearBuilt === null || yearBuilt === ''
-            ? null
-            : parseInt(yearBuilt, 10),
-    amenities,
-});
+const hasOwn = (value, key) => Object.prototype.hasOwnProperty.call(value, key);
+
+const toPropertyData = (payload) => {
+    const data = {
+        title: payload.title.trim(),
+        description: payload.description.trim(),
+        price: Number.parseFloat(payload.price),
+        addressLine: payload.addressLine.trim(),
+        city: payload.city.trim(),
+        bedrooms: Number.parseInt(payload.bedrooms, 10),
+        bathrooms: Number.parseFloat(payload.bathrooms),
+        sqft: Number.parseInt(payload.sqft, 10),
+    };
+
+    if (hasOwn(payload, 'type')) data.type = payload.type;
+    if (hasOwn(payload, 'status')) data.status = payload.status;
+    if (hasOwn(payload, 'lotSizeAcres')) {
+        data.lotSizeAcres =
+            payload.lotSizeAcres === null || payload.lotSizeAcres === ''
+                ? null
+                : Number.parseFloat(payload.lotSizeAcres);
+    }
+    if (hasOwn(payload, 'yearBuilt')) {
+        data.yearBuilt =
+            payload.yearBuilt === null || payload.yearBuilt === ''
+                ? null
+                : Number.parseInt(payload.yearBuilt, 10);
+    }
+    if (hasOwn(payload, 'amenities')) {
+        data.amenities = payload.amenities.map((amenity) => amenity.trim());
+    }
+
+    return data;
+};
 
 const getEnabledActor = async (actorId) => {
     const id = Number(actorId);
