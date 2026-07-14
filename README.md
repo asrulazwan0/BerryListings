@@ -22,42 +22,57 @@ A REST API for managing real estate property listings, built for a real estate a
 
 ```bash
 npm install
+cp .env.example .env
 ```
 
-Create a `.env` file with:
+Then fill in `.env` with real values:
 
-```
-PORT=3000
-DATABASE_URL=mysql://user:password@host:port/schema
-DB_HOST=
-DB_PORT=
-DB_SCHEMA=
-DB_USER=
-DB_PASSWORD=
-DB_NAME=
-ADMIN_USER=
-ADMIN_PASS=
-JWT_SECRET=
-GOOGLE_CLIENT_ID=
-```
+| Variable | Description |
+|---|---|
+| `PORT` | Port the server listens on (default `3000`) |
+| `DATABASE_URL` | MySQL connection string, the only DB variable actually read by the app/Prisma |
+| `DB_HOST`, `DB_PORT`, `DB_SCHEMA`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` | Informational only -- building blocks for `DATABASE_URL` if you construct it by hand. **Not** auto-substituted into it (dotenv doesn't expand `${VAR}` references) |
+| `ADMIN_USER` | Email seeded as the first admin `User` row via `npm run db:seed` |
+| `ADMIN_PASS` | Currently unused -- there's no password-based auth in this app |
+| `JWT_SECRET` | Signs/verifies bearer JWTs. Use a long, random value outside local dev |
+| `GOOGLE_CLIENT_ID` | OAuth 2.0 Client ID from a Google Cloud project (APIs & Services > Credentials). Verifies Google ID tokens on login |
 
-`GOOGLE_CLIENT_ID` is the OAuth 2.0 Client ID from a Google Cloud project (APIs & Services > Credentials). It's used to verify Google ID tokens on login.
+Never commit `.env` -- it's gitignored. `.env.example` holds names only, no real values.
 
-Run migrations and start the server:
+Run migrations, seed the first admin, and start the server:
 
 ```bash
 npx prisma migrate dev
-npm run dev   # nodemon, for local development
-npm start     # plain node, for production
+npm run db:seed   # creates/updates the admin User row from ADMIN_USER
+npm run dev       # nodemon, for local development
+npm start         # plain node, for production
 ```
 
 The server listens on `PORT` (default `3000`).
 
-### Docker
+### Production Docker Image
 
 ```bash
 docker build -t berrylistings .
 docker run -p 3000:3000 --env-file .env berrylistings
+```
+
+### Local Development (Docker Compose)
+
+For local development, `docker-compose.yml` + `Dockerfile.dev` run the app alongside its own MySQL container -- no local Node.js or MySQL install needed:
+
+```bash
+docker compose up --build
+```
+
+This applies pending Prisma migrations, generates the client, and starts the app with `nodemon --legacy-watch` (polling-based watch, needed for reliable file-change detection over Docker's bind mount). The app's `DATABASE_URL` is set directly in `docker-compose.yml` to point at the `db` service, independent of whatever `DATABASE_URL` is in your `.env`.
+
+Common commands once it's running:
+
+```bash
+docker compose exec app npm run db:seed   # seed the first admin
+docker compose exec app npm test          # run the test suite
+docker compose logs app -f                # tail app logs
 ```
 
 ## Testing
@@ -66,7 +81,7 @@ docker run -p 3000:3000 --env-file .env berrylistings
 npm test   # runs the vitest suite (unit + supertest integration tests)
 ```
 
-The integration tests exercise the real routes/controllers against a live database, so run them with a database available, e.g. via `docker compose exec app npm test` (see `docker-compose.yml` for the local dev stack).
+The integration tests exercise the real routes/controllers against a live database, so run them with a database available -- e.g. `docker compose exec app npm test` using the Docker Compose dev stack above.
 
 ## API Documentation
 
@@ -102,13 +117,7 @@ The server verifies the token with Google, looks up the token's email against th
 
 Tokens can also still be generated manually for local development/testing (see `src/utils/jwt-utils.js`).
 
-All `/api/v1/users` routes additionally require the caller to be an **enabled admin**: on every request, the JWT's `email` claim is looked up against the `User` table, and the request is rejected with `403` unless a matching row has `role: ADMIN` and `isEnabled: true`. Seed the first admin from the `ADMIN_USER` env var:
-
-```bash
-npm run db:seed
-```
-
-`ADMIN_PASS` is reserved for a future password-based flow and is not currently used anywhere — admin identity is entirely DB-driven via `ADMIN_USER`'s email.
+All `/api/v1/users` routes additionally require the caller to be an **enabled admin**: on every request, the JWT's `email` claim is looked up against the `User` table, and the request is rejected with `403` unless a matching row has `role: ADMIN` and `isEnabled: true`. See the `ADMIN_USER` row in the Setup env var table above for seeding the first admin.
 
 ## Project Tracking
 
