@@ -30,8 +30,13 @@ app.use((err, req, res, next) =>
     res.status(500).json({ error: 'Internal Server Error' });
 });
 
-app.listen(PORT, () =>
+if (process.env.NODE_ENV !== 'test')
 {
-    console.log(`Server is running on port ${PORT}`);
-});
-swaggerDocs(app, PORT);
+    app.listen(PORT, () =>
+    {
+        console.log(`Server is running on port ${PORT}`);
+    });
+    swaggerDocs(app, PORT);
+}
+
+export default app;

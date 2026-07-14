@@ -57,6 +57,14 @@ docker build -t berrylistings .
 docker run -p 3000:3000 --env-file .env berrylistings
 ```
 
+## Testing
+
+```bash
+npm test   # runs the vitest suite (unit + supertest integration tests)
+```
+
+The integration tests exercise the real routes/controllers against a live database, so run them with a database available, e.g. via `docker compose exec app npm test` (see `docker-compose.yml` for the local dev stack).
+
 ## API Documentation
 
 Interactive Swagger UI is served at `/docs` once the server is running (e.g. `http://localhost:3000/docs`), with the raw OpenAPI spec at `/docs.json`.
