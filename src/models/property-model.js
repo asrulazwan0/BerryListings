@@ -70,16 +70,16 @@ const propertyModel = {
         return property;
     },
     getPropertyList: async () => {
-        const propertyList = await prisma.property.findMany();
-
-        return propertyList;
+        return prisma.property.findMany({
+            select: publicPropertySelect,
+            orderBy: { createdAt: 'desc' },
+        });
     },
     getPropertyByUuid: async (uuid) => {
-        const property = await prisma.property.findUnique({
-            where: { uuid: uuid },
+        return prisma.property.findUnique({
+            where: { uuid },
+            select: publicPropertySelect,
         });
-
-        return property;
     },
     updateProperty: async (
         property,

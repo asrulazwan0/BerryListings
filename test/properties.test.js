@@ -103,7 +103,15 @@ describe('properties API', () => {
         const res = await request(app).get('/api/v1/properties');
 
         expect(res.status).toBe(200);
-        expect(res.body.data.some((p) => p.uuid === createdUuids[0])).toBe(true);
+        const property = res.body.data.find((item) => item.uuid === createdUuids[0]);
+        expect(property).toBeDefined();
+        expect(property.agent).toEqual({ uuid: owner.uuid, email: owner.email });
+        expect(property.photos).toEqual([
+            { url: 'https://images.example.com/maple-front.jpg', position: 0 },
+            { url: 'https://images.example.com/maple-kitchen.jpg', position: 1 },
+        ]);
+        expect(property).not.toHaveProperty('id');
+        expect(property).not.toHaveProperty('agentId');
     });
 
     it('fetches a property by id', async () => {
@@ -111,6 +119,13 @@ describe('properties API', () => {
 
         expect(res.status).toBe(200);
         expect(res.body.data.uuid).toBe(createdUuids[0]);
+        expect(res.body.data.agent).toEqual({ uuid: owner.uuid, email: owner.email });
+        expect(res.body.data.photos).toEqual([
+            { url: 'https://images.example.com/maple-front.jpg', position: 0 },
+            { url: 'https://images.example.com/maple-kitchen.jpg', position: 1 },
+        ]);
+        expect(res.body.data).not.toHaveProperty('id');
+        expect(res.body.data).not.toHaveProperty('agentId');
     });
 
     it('returns 404 for a nonexistent property', async () => {
