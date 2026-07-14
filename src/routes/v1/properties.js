@@ -18,9 +18,13 @@ const propertyFieldValidators = () => [
     body('bedrooms').isInt({ min: 0 }),
     body('bathrooms').isFloat({ min: 0 }),
     body('sqft').isInt({ min: 0 }),
-    body('lotSizeAcres').optional({ values: 'falsy' }).isFloat({ min: 0 }),
+    body('lotSizeAcres')
+        .optional({ values: 'null' })
+        .if((value) => value !== '')
+        .isFloat({ min: 0 }),
     body('yearBuilt')
-        .optional({ values: 'falsy' })
+        .optional({ values: 'null' })
+        .if((value) => value !== '')
         .isInt({ min: 1800, max: new Date().getFullYear() + 1 }),
     body('amenities').optional().isArray({ max: 50 }),
     body('amenities.*').optional().isString().trim().notEmpty(),
@@ -108,6 +112,7 @@ const validateUpdateProperty = propertyFieldValidators();
  *                nullable: true
  *              amenities:
  *                type: array
+ *                maxItems: 50
  *                items:
  *                  type: string
  *              photos:

@@ -23,6 +23,7 @@ describe('property OpenAPI contract', () => {
         expect(schema.required).not.toContain('agentId');
         expect(schema.properties.photos.items.format).toBe('uri');
         expect(schema.properties.amenities.items.type).toBe('string');
+        expect(schema.properties.amenities.maxItems).toBe(50);
     });
 
     it('documents the complete authenticated update payload', () => {

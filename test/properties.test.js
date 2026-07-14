@@ -119,7 +119,9 @@ describe('properties API', () => {
         ['unknown type', { type: 'CASTLE' }],
         ['unknown status', { status: 'HIDDEN' }],
         ['negative bedrooms', { bedrooms: '-1' }],
+        ['boolean lot size', { lotSizeAcres: false }],
         ['year before 1800', { yearBuilt: '1700' }],
+        ['boolean year built', { yearBuilt: false }],
         ['non-string amenity', { amenities: [42] }],
         ['photo without an HTTP protocol', { photos: ['not-a-url'] }],
         [
@@ -162,6 +164,18 @@ describe('properties API', () => {
         ]);
         expect(res.body.data).not.toHaveProperty('id');
         expect(res.body.data).not.toHaveProperty('agentId');
+        createdUuids.push(res.body.data.uuid);
+    });
+
+    it('stores empty nullable property details as null', async () => {
+        const res = await request(app)
+            .post('/api/v1/properties')
+            .set('Authorization', `Bearer ${token}`)
+            .send(validPropertyPayload({ lotSizeAcres: '', yearBuilt: '' }));
+
+        expect(res.status).toBe(201);
+        expect(res.body.data.lotSizeAcres).toBeNull();
+        expect(res.body.data.yearBuilt).toBeNull();
         createdUuids.push(res.body.data.uuid);
     });
 
