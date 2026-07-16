@@ -61,6 +61,11 @@ const updateUser = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
+        // Prevent self-disable
+        if (isEnabled === false && user.email === req.user.email) {
+            return res.status(403).json({ error: 'Cannot disable your own account.' });
+        }
+
         const result = await userModel.updateUser(user, { email, isEnabled });
 
         res.json({ message: `User with id ${id} updated successfully`, data: result });
@@ -82,6 +87,11 @@ const deleteUser = async (req, res) => {
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Prevent self-delete
+        if (user.email === req.user.email) {
+            return res.status(403).json({ error: 'Cannot delete your own account.' });
         }
 
         await userModel.deleteUser(user.uuid);
