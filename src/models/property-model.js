@@ -69,8 +69,21 @@ const propertyModel = {
 
         return property;
     },
-    getPropertyList: async () => {
+    getPropertyList: async (filters = {}) => {
+        const where = {};
+        if (filters.type) where.type = filters.type;
+        if (filters.status) where.status = filters.status;
+        if (filters.city) where.city = { contains: filters.city };
+        if (filters.minPrice || filters.maxPrice) {
+            where.price = {};
+            if (filters.minPrice) where.price.gte = Number(filters.minPrice);
+            if (filters.maxPrice) where.price.lte = Number(filters.maxPrice);
+        }
+        if (filters.bedrooms) where.bedrooms = Number(filters.bedrooms);
+        if (filters.bathrooms) where.bathrooms = Number(filters.bathrooms);
+
         return prisma.property.findMany({
+            where,
             select: publicPropertySelect,
             orderBy: { createdAt: 'desc' },
         });

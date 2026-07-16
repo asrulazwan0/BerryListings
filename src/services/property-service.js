@@ -64,8 +64,8 @@ const propertyService = {
 
         return { data };
     },
-    getPropertyList: async () => {
-        return propertyModel.getPropertyList();
+    getPropertyList: async (filters) => {
+        return propertyModel.getPropertyList(filters);
     },
     getPropertyByUuid: async (uuid) => {
         return propertyModel.getPropertyByUuid(uuid);
