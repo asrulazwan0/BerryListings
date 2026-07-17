@@ -1,5 +1,6 @@
 import authService from '../services/auth-service.js';
 import userModel from '../models/user.model.js';
+import roleModel from '../models/role.model.js';
 import generateAccessToken from '../utils/jwt-utils.js';
 
 const authController = {
@@ -38,10 +39,13 @@ const authController = {
             if (!user || !user.isEnabled) {
                 return res.status(403).json({ error: 'Email not registered or disabled.' });
             }
-            const token = generateAccessToken({ id: user.id, email: user.email });
+            // Get permissions from role
+            const role = await roleModel.getRoleByName(user.role);
+            const permissions = role?.permissions ?? [];
+            const token = generateAccessToken({ id: user.id, email: user.email, role: user.role, permissions });
             res.status(200).json({
                 message: 'Dev login successful',
-                data: { token, user: { uuid: user.uuid, email: user.email, role: user.role } },
+                data: { token, user: { uuid: user.uuid, email: user.email, role: user.role, permissions } },
             });
         } catch (error) {
             console.error(error.stack);
