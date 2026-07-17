@@ -33,7 +33,7 @@ const getUserById = async (req, res) => {
         res.json({ message: `get user id ${id}`, data: user });
     } catch (error) {
         console.error(error.stack);
-        res.status(500).json({ error: `Error fetching user id ${id}` });
+        res.status(500).json({ error: 'Error fetching user' });
     }
 };
 
@@ -70,7 +70,7 @@ const updateUser = async (req, res) => {
     } catch (error) {
         if (error.code === 'P2002') return res.status(409).json({ error: 'A user with this email already exists' });
         console.error(error.stack);
-        res.status(500).json({ error: `Error updating user id ${id}` });
+        res.status(500).json({ error: 'Error updating user' });
     }
 };
 
@@ -96,7 +96,7 @@ const deleteUser = async (req, res) => {
         await userModel.deleteUser(user.uuid);
         res.status(204).send();
     } catch (error) {
-        res.status(500).json({ error: `Error deleting user id ${id}` });
+        res.status(500).json({ error: 'Error deleting user' });
     }
 };
 
