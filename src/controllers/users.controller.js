@@ -65,7 +65,7 @@ const updateUser = async (req, res) => {
             }
         }
 
-        const result = await userModel.updateUser(user, { email, isEnabled });
+        const result = await userModel.updateUser(user, { email, isEnabled, role });
         res.json({ message: `User with id ${id} updated successfully`, data: result });
     } catch (error) {
         if (error.code === 'P2002') return res.status(409).json({ error: 'A user with this email already exists' });

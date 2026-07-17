@@ -41,9 +41,10 @@ const getUserByEmail = async (email) => {
     return user;
 };
 
-const updateUser = async (user, { email, isEnabled }) => {
-    user.email = email;
-    user.isEnabled = isEnabled;
+const updateUser = async (user, { email, isEnabled, role }) => {
+    if (email !== undefined) user.email = email;
+    if (isEnabled !== undefined) user.isEnabled = isEnabled;
+    if (role !== undefined) user.role = role;
 
     const result = await prisma.user.update({
         where: { uuid: user.uuid },
