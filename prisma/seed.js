@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import generateUniqueId from '../src/utils/unique-id.js';
+import { ROLE_PERMISSIONS } from '../src/utils/permissions.js';
 
 const prisma = new PrismaClient();
 
@@ -55,8 +56,8 @@ async function main() {
 
   const admin = await prisma.user.upsert({
     where: { email },
-    update: { role: 'ADMIN', isEnabled: true },
-    create: { uuid: generateUniqueId(), email, role: 'ADMIN', isEnabled: true },
+    update: { role: 'ADMIN', isEnabled: true, permissions: ROLE_PERMISSIONS.ADMIN },
+    create: { uuid: generateUniqueId(), email, role: 'ADMIN', isEnabled: true, permissions: ROLE_PERMISSIONS.ADMIN },
   });
   console.log(`Admin: ${admin.email} (${admin.uuid})`);
 

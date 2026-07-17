@@ -59,6 +59,10 @@ const deleteUser = async (uuid) => {
     });
 };
 
+const countEnabledAdmins = async () => {
+    return prisma.user.count({ where: { role: 'ADMIN', isEnabled: true } });
+};
+
 export default {
     createUser,
     getUserList,
@@ -67,4 +71,5 @@ export default {
     getUserByEmail,
     updateUser,
     deleteUser,
+    countEnabledAdmins,
 };

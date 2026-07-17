@@ -33,12 +33,13 @@ enum PropertyStatus {
 }
 
 model User {
-  id         Int        @id @default(autoincrement())
-  uuid       String     @unique
-  email      String     @unique
-  isEnabled  Boolean    @default(false)
-  role       Role       @default(USER)
-  properties Property[]
+  id          Int        @id @default(autoincrement())
+  uuid        String     @unique
+  email       String     @unique
+  isEnabled   Boolean    @default(false)
+  role        Role       @default(USER)
+  permissions Json       @default("[]")
+  properties  Property[]
 }
 
 model Property {
