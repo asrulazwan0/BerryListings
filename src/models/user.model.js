@@ -3,15 +3,15 @@ import generateUniqueId from '../utils/unique-id.js';
 
 const prisma = new PrismaClient();
 
-const createUser = async (email) => {
+const createUser = async (email, role = 'USER') => {
     const user = await prisma.user.create({
         data: {
             uuid: generateUniqueId(),
             email: email,
             isEnabled: true,
+            role: role,
         },
     });
-
     return user;
 };
 
