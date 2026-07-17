@@ -6,7 +6,7 @@ import rateLimit from 'express-rate-limit';
 import { config } from 'dotenv';
 import swaggerDocs from './swagger.js';
 import authenticate from './middlewares/auth.middleware.js';
-import requireAdmin from './middlewares/require-admin.middleware.js';
+import { requireScope } from './middlewares/require-scope.middleware.js';
 import authRoutes from './routes/v1/auth.routes.js';
 import propertiesRoutes from './routes/v1/properties.js';
 import usersRoutes from './routes/v1/users.routes.js';
@@ -53,8 +53,8 @@ app.get('/', (req, res) => {
 });
 app.use('/api/v1/auth', authLimiter, authRoutes);
 app.use('/api/v1/properties', propertiesRoutes);
-app.use('/api/v1/users', authenticate, requireAdmin, usersRoutes);
-app.use('/api/v1/roles', authenticate, requireAdmin, rolesRoutes);
+app.use('/api/v1/users', authenticate, usersRoutes);
+app.use('/api/v1/roles', authenticate, requireScope('users:view'), rolesRoutes);
 
 app.use((err, req, res, _next) => {
   console.error(err.stack);

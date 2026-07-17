@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 import authenticate from '../../middlewares/auth.middleware.js';
+import { requireScope } from '../../middlewares/require-scope.middleware.js';
 import propertyController from '../../controllers/property-controller.js';
 const router = Router();
 
@@ -135,7 +136,7 @@ const validateUpdateProperty = propertyFieldValidators();
  *      500:
  *        description: Server Error
  */
-router.route('/').post(authenticate, validateCreateProperty, propertyController.createProperty);
+router.route('/').post(authenticate, requireScope('properties:create'), validateCreateProperty, propertyController.createProperty);
 
 /** GET Methods */
 /**
@@ -282,7 +283,7 @@ router.route('/').get(propertyController.getPropertyList);
  *      500:
  *        description: Server Error
  */
-router.route('/:id').put(authenticate, validateUpdateProperty, propertyController.updateProperty);
+router.route('/:id').put(authenticate, requireScope('properties:edit'), validateUpdateProperty, propertyController.updateProperty);
 
 /** DELETE Methods */
 /**
@@ -313,6 +314,6 @@ router.route('/:id').put(authenticate, validateUpdateProperty, propertyControlle
  *      500:
  *        description: Server Error
  */
-router.route('/:id').delete(authenticate, propertyController.deleteProperty);
+router.route('/:id').delete(authenticate, requireScope('properties:delete'), propertyController.deleteProperty);
 
 export default router;
