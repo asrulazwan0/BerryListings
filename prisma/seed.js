@@ -61,7 +61,20 @@ async function main() {
   });
   console.log(`Admin: ${admin.email} (${admin.uuid})`);
 
-  // 2. Create a regular demo user for public browsing
+  // Seed default roles
+  await prisma.managedRole.upsert({
+    where: { name: 'ADMIN' },
+    update: { permissions: ROLE_PERMISSIONS.ADMIN },
+    create: { name: 'ADMIN', permissions: ROLE_PERMISSIONS.ADMIN },
+  });
+  await prisma.managedRole.upsert({
+    where: { name: 'USER' },
+    update: { permissions: ROLE_PERMISSIONS.USER },
+    create: { name: 'USER', permissions: ROLE_PERMISSIONS.USER },
+  });
+  console.log('Default roles seeded.');
+
+  // Create a regular demo user
   const demoEmail = 'demo@berrylistings.local';
   const demoUser = await prisma.user.upsert({
     where: { email: demoEmail },

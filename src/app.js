@@ -10,6 +10,7 @@ import requireAdmin from './middlewares/require-admin.middleware.js';
 import authRoutes from './routes/v1/auth.routes.js';
 import propertiesRoutes from './routes/v1/properties.js';
 import usersRoutes from './routes/v1/users.routes.js';
+import rolesRoutes from './routes/v1/roles.routes.js';
 
 config();
 const PORT = process.env.PORT || 3000;
@@ -53,6 +54,7 @@ app.get('/', (req, res) => {
 app.use('/api/v1/auth', authLimiter, authRoutes);
 app.use('/api/v1/properties', propertiesRoutes);
 app.use('/api/v1/users', authenticate, requireAdmin, usersRoutes);
+app.use('/api/v1/roles', authenticate, requireAdmin, rolesRoutes);
 
 app.use((err, req, res, _next) => {
   console.error(err.stack);
