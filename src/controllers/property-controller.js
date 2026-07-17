@@ -24,7 +24,7 @@ const propertyController = {
     },
     getPropertyList: async (req, res) => {
         try {
-            const propertyList = await propertyService.getPropertyList();
+            const propertyList = await propertyService.getPropertyList(req.query);
             res.json({ message: 'get property list', data: propertyList });
         } catch (error) {
             console.error(error.stack);

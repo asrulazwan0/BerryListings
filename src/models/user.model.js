@@ -3,15 +3,15 @@ import generateUniqueId from '../utils/unique-id.js';
 
 const prisma = new PrismaClient();
 
-const createUser = async (email) => {
+const createUser = async (email, role = 'USER') => {
     const user = await prisma.user.create({
         data: {
             uuid: generateUniqueId(),
             email: email,
             isEnabled: true,
+            role: role,
         },
     });
-
     return user;
 };
 
@@ -41,9 +41,10 @@ const getUserByEmail = async (email) => {
     return user;
 };
 
-const updateUser = async (user, { email, isEnabled }) => {
-    user.email = email;
-    user.isEnabled = isEnabled;
+const updateUser = async (user, { email, isEnabled, role }) => {
+    if (email !== undefined) user.email = email;
+    if (isEnabled !== undefined) user.isEnabled = isEnabled;
+    if (role !== undefined) user.role = role;
 
     const result = await prisma.user.update({
         where: { uuid: user.uuid },
@@ -59,6 +60,10 @@ const deleteUser = async (uuid) => {
     });
 };
 
+const countEnabledAdmins = async () => {
+    return prisma.user.count({ where: { role: 'ADMIN', isEnabled: true } });
+};
+
 export default {
     createUser,
     getUserList,
@@ -67,4 +72,5 @@ export default {
     getUserByEmail,
     updateUser,
     deleteUser,
+    countEnabledAdmins,
 };
