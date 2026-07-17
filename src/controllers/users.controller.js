@@ -44,6 +44,11 @@ const updateUser = async (req, res) => {
         const user = await userModel.getUserByUuid(id);
         if (!user) return res.status(404).json({ message: 'User not found' });
 
+        // Prevent changing own role (anti-lockout)
+        if (role && user.email === req.user.email) {
+            return res.status(403).json({ error: 'Cannot change your own role.' });
+        }
+
         // Prevent self-disable
         if (isEnabled === false && user.email === req.user.email) {
             return res.status(403).json({ error: 'Cannot disable your own account.' });
